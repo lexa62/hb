@@ -8,6 +8,7 @@ config :hb, Hb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+config :comeonin, :bcrypt_log_rounds, 4
 
 # Configure your database
 config :hb, Hb.Repo,

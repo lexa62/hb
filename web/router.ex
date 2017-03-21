@@ -11,16 +11,24 @@ defmodule Hb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug Guardian.Plug.VerifyHeader
+    plug Guardian.Plug.LoadResource
+  end
+
+  scope "/api", Hb do
+    pipe_through :api
+
+    scope "/v1" do
+      get "/current_user", CurrentUserController, :show
+      post "/registrations", RegistrationController, :create
+      post "/sessions", SessionController, :create
+      delete "/sessions", SessionController, :delete
+    end
   end
 
   scope "/", Hb do
-    pipe_through :browser # Use the default browser stack
+    pipe_through :browser
 
-    get "/", PageController, :index
+    get "/*path", PageController, :index
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", Hb do
-  #   pipe_through :api
-  # end
 end

@@ -14,6 +14,7 @@ const plugins = {
 }
 
 module.exports = {
+  devtool: 'source-map',
   entry: [
     "./web/static/js/index.js",
     "./web/static/styles/index.less"
@@ -30,7 +31,7 @@ module.exports = {
       loader: "babel",
       query: {
         plugins: ["transform-decorators-legacy"],
-        presets: ["react", "es2015", "stage-2"],
+        presets: ["react", "es2015", "stage-2", "stage-0"],
       }
     }, {
       test: /\.less$/,
