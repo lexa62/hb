@@ -4,6 +4,8 @@ import { browserHistory }       from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 import configureStore           from './store';
 import Root                     from './containers/root';
+import 'jquery';
+import 'bootstrap/dist/js/bootstrap';
 
 const store = configureStore(browserHistory);
 const history = syncHistoryWithStore(browserHistory, store);

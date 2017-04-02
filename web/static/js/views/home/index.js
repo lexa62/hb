@@ -1,52 +1,84 @@
 import React                from 'react';
 import { connect }          from 'react-redux';
 import classnames           from 'classnames';
+import { Link }             from 'react-router';
 
 import { setDocumentTitle } from '../../utils';
 // import Actions              from '../../actions/boards';
 // import BoardCard            from '../../components/boards/card';
 // import BoardForm            from '../../components/boards/form';
 import Actions              from '../../actions/sessions';
+import { push }           from 'react-router-redux';
+
+class AccountingCard extends React.Component {
+  // _handleClick() {
+  //   this.props.dispatch(push(`/accounting/${this.props.id}`));
+  // }
+
+  render() {
+    return (
+      <div id={this.props.id} className="board">
+        <div className="inner">
+          <Link to={`/accounting/${this.props.id}`}>
+            <li>#{this.props.id}</li>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+}
+
 
 class HomeIndexView extends React.Component {
   componentDidMount() {
-    setDocumentTitle('HOME');
+    setDocumentTitle('Home');
   }
 
   // componentWillUnmount() {
   //   this.props.dispatch(Actions.reset());
   // }
 
-  // _renderOwnedBoards() {
-  //   const { fetching } = this.props;
+  _renderOwnedAccounting() {
+    const { fetching, ownedAccounting, participatedAccounting } = this.props;
 
-  //   let content = false;
+    let content = false;
 
-  //   const iconClasses = classnames({
-  //     fa: true,
-  //     'fa-user': !fetching,
-  //     'fa-spinner': fetching,
-  //     'fa-spin':    fetching,
-  //   });
+    const iconClasses = classnames({
+      fa: true,
+      'fa-user': !fetching,
+      'fa-spinner': fetching,
+      'fa-spin':    fetching,
+    });
 
-  //   if (!fetching) {
-  //     content = (
-  //       <div className="boards-wrapper">
-  //         {::this._renderBoards(this.props.ownedBoards)}
-  //         {::this._renderAddNewBoard()}
-  //       </div>
-  //     );
-  //   }
+    if (!fetching) {
+      content = (
+        <div className="boards-wrapper">
+          <ul>
+            {
+              ownedAccounting.map((accounting) => {
+                return <AccountingCard key={accounting.id} dispatch={this.props.dispatch} {...accounting} />;
+              })
+            }
+          </ul>
+          <br/>
+          <h3>Приглашения:</h3>
+          {participatedAccounting.map((accounting) => {
+            return (<p>{accounting.id}</p>);
+          })}
+        </div>
+      );
+    }
 
-  //   return (
-  //     <section>
-  //       <header className="view-header">
-  //         <h3><i className={iconClasses} /> My boards</h3>
-  //       </header>
-  //       {content}
-  //     </section>
-  //   );
-  // }
+    return (
+      <section>
+        <header className="view-header">
+          <p>fetching: {fetching ? 'Yes' : 'No'}</p>
+          <h3><i className={iconClasses} /> Мои аккаунты:</h3>
+        </header>
+        {content}
+      </section>
+    );
+  }
 
   // _renderBoards(boards) {
   //   return boards.map((board) => {
@@ -70,7 +102,7 @@ class HomeIndexView extends React.Component {
   //   );
   // }
 
-  // _renderOtherBoards() {
+  // _renderOtherAccounting() {
   //   const { invitedBoards } = this.props;
 
   //   if (invitedBoards.length === 0) return false;
@@ -110,23 +142,21 @@ class HomeIndexView extends React.Component {
   render() {
     return (
       <div className="view-container boards index">
-        <p>HELLO, BRO!</p>
+        {::this._renderOwnedAccounting()}
+        {/*::this._renderOtherAccounting()*/}
         <a href="#" onClick={::this._handleSignOutClick}><i className="fa fa-sign-out"/> Sign out</a>
-        {/*{::this._renderOwnedBoards()}
-        {::this._renderOtherBoards()}*/}
       </div>
     );
   }
 
   _handleSignOutClick(e) {
     e.preventDefault();
-
     this.props.dispatch(Actions.signOut());
   }
 }
 
 const mapStateToProps = (state) => (
-  {}
+  state.accounting
 );
 
 export default connect(mapStateToProps)(HomeIndexView);

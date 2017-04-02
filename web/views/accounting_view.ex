@@ -1,4 +1,4 @@
-defmodule Hb.BoardView do
+defmodule Hb.AccountingView do
   use Hb.Web, :view
 
   alias Hb.Accounting

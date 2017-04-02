@@ -3,6 +3,8 @@ defmodule Hb.Accounting do
 
   alias Hb.{Repo, User, Transaction}
 
+  @derive {Poison.Encoder, only: [:id, :transactions]}
+
   schema "accounting" do
     belongs_to :user, User, foreign_key: :owner_id
     has_many :transactions, Transaction
@@ -20,7 +22,7 @@ defmodule Hb.Accounting do
   end
 
   def preload_all(query) do
-    transactions_query = from t in Transaction, order_by: [desc: t.created_at]
+    transactions_query = from t in Transaction, order_by: [desc: t.inserted_at]
 
     from a in query, preload: [transactions: ^transactions_query]
   end

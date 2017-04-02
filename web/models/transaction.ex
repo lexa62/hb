@@ -4,6 +4,8 @@ defmodule Hb.Transaction do
   alias __MODULE__
   alias Hb.{Accounting}
 
+  @derive {Poison.Encoder, only: [:id, :amount, :description, :type]}
+
   schema "transactions" do
     field :amount, :float
     field :description, :string
