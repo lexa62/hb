@@ -14,12 +14,14 @@ defmodule Hb do
       supervisor(Hb.Endpoint, []),
       # Start your own worker by calling: Hb.Worker.start_link(arg1, arg2, arg3)
       # worker(Hb.Worker, [arg1, arg2, arg3]),
+      # worker(Cachex, [:cache, [], []]),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Hb.Supervisor]
     Supervisor.start_link(children, opts)
+    Cachex.start_link(:cache, [default_ttl: :timer.hours(4)])
   end
 
   # Tell Phoenix to update the endpoint configuration
