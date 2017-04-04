@@ -7,7 +7,7 @@ defmodule Hb.Transaction do
   @derive {Poison.Encoder, only: [:id, :amount, :description, :type]}
 
   schema "transactions" do
-    field :amount, :float
+    field :amount, Money.Ecto.Type
     field :description, :string
     field :type, TransactionTypeEnum
 

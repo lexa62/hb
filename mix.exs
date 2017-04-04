@@ -42,7 +42,9 @@ defmodule Hb.Mixfile do
      {:guardian, "~> 0.14"},
      {:ecto_enum, "~> 1.0"},
      {:httpoison, "~> 0.11.1"},
-     {:cachex, "~> 2.1"}]
+     {:cachex, "~> 2.1"},
+     {:money, "~> 1.2.1"},
+     {:currencies, "~> 0.4.1"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.
