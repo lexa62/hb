@@ -31,8 +31,8 @@ config :guardian, Guardian,
 
 config :money,
   default_currency: :USD,
-  separator: ".",
-  delimeter: ",",
+  separator: " ",
+  delimeter: ".",
   symbol: false,
   symbol_on_right: false,
   symbol_space: false
