@@ -14,7 +14,7 @@ defmodule Hb.User do
 
     has_one :owned_accounting, Accounting, foreign_key: :owner_id
     has_many :accounting_users, AccountingUser
-    has_many :participated_acccounting, through: [:accounting_users, :accounting]
+    has_many :all_accounting, through: [:accounting_users, :accounting]
 
     timestamps()
   end

@@ -1,7 +1,7 @@
 defmodule Hb.RegistrationController  do
   use Hb.Web, :controller
 
-  alias Hb.{Repo, User, Accounting}
+  alias Hb.{Repo, User, Accounting, AccountingUser}
 
   plug :scrub_params, "user" when action in [:create]
 
@@ -12,9 +12,14 @@ defmodule Hb.RegistrationController  do
       {:ok, user} ->
         {:ok, jwt, _full_claims} = Guardian.encode_and_sign(user, :token)
 
-        user
+        accounting = user
         |> Ecto.build_assoc(:owned_accounting)
         |> Accounting.changeset(%{})
+        |> Repo.insert!
+
+        accounting
+        |> build_assoc(:accounting_users)
+        |> AccountingUser.changeset(%{user_id: user.id})
         |> Repo.insert!
 
         conn

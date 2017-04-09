@@ -62,9 +62,13 @@ class HomeIndexView extends React.Component {
           </ul>
           <br/>
           <h3>Приглашения:</h3>
-          {participatedAccounting.map((accounting) => {
-            return (<p>{accounting.id}</p>);
-          })}
+          <ul>
+            {
+              participatedAccounting.map((accounting) => {
+                return <AccountingCard key={accounting.id} dispatch={this.props.dispatch} {...accounting} />;
+              })
+            }
+          </ul>
         </div>
       );
     }

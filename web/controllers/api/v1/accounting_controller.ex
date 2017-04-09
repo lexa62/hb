@@ -14,7 +14,8 @@ defmodule Hb.AccountingController do
       |> Repo.all
 
     participated_acccounting = current_user
-      |> assoc(:participated_acccounting)
+      |> assoc(:all_accounting)
+      |> Accounting.not_owned_by(current_user.id)
       |> Accounting.preload_all
       |> Repo.all
 

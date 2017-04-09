@@ -20,6 +20,12 @@ export default function reducer(state = initialState, action = {}) {
     case Constants.CURRENT_ACCOUNTING_TRANSACTION_CREATED:
       return { ...state, transactions: [action.transaction, ...state.transactions]};
 
+    case Constants.CURRENT_ACCOUNTING_MEMBER_ADDED:
+      return { ...state, error: null };
+
+    case Constants.CURRENT_ACCOUNTING_ADD_MEMBER_ERROR:
+      return { ...state, error: action.error };
+
     case Constants.CURRENT_ACCOUNTING_RESET:
       return initialState;
 

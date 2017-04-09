@@ -8,7 +8,7 @@ import Constants            from '../../constants';
 import { setDocumentTitle } from '../../utils';
 // import Select2 from 'react-select2-wrapper';
 // import ListForm             from '../../components/lists/form';
-// import ListCard             from '../../components/lists/card';
+import MemberForm             from '../../components/accounting/member_form';
 // import BoardMembers           from '../../components/boards/members';
 
 // @DragDropContext(HTML5Backend)
@@ -342,7 +342,7 @@ class AccountingShowView extends React.Component {
 
   render() {
     const { currentAccounting, dispatch } = this.props;
-    const { fetching, channel, transactions, id, currencies, categories, accounts } = currentAccounting;
+    const { fetching, channel, transactions, id, currencies, categories, accounts, error } = currentAccounting;
     let content = null;
     if (!fetching) {
       content = (
@@ -356,6 +356,18 @@ class AccountingShowView extends React.Component {
             defaultCurrency={currencies.find(c => c.is_default) || currencies[0]}
             channel={channel} />
           <TransactionList transactions={transactions} />
+          <MemberForm dispatch={dispatch} channel={channel} error={error} />
+          <div className="well">
+            <ul>
+              {
+                accounts.map((a) => {
+                  return (
+                    <li key={a.id}>{`${a.name}`}</li>
+                  )
+                })
+              }
+            </ul>
+          </div>
           {/*<Select2
             data={[
               { id: 0, text: 'test'},

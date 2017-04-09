@@ -51,12 +51,12 @@ const Actions = {
       //   });
       // });
 
-      // channel.on('member:added', (msg) => {
-      //   dispatch({
-      //     type: Constants.CURRENT_BOARD_MEMBER_ADDED,
-      //     user: msg.user,
-      //   });
-      // });
+      channel.on('member:added', (msg) => {
+        dispatch({
+          type: Constants.CURRENT_ACCOUNTING_MEMBER_ADDED,
+          user: msg.user,
+        });
+      });
 
       // channel.on('card:updated', (msg) => {
       //   dispatch({
@@ -112,17 +112,17 @@ const Actions = {
     };
   },
 
-  // addNewMember: (channel, email) => {
-  //   return dispatch => {
-  //     channel.push('members:add', { email: email })
-  //     .receive('error', (data) => {
-  //       dispatch({
-  //         type: Constants.CURRENT_BOARD_ADD_MEMBER_ERROR,
-  //         error: data.error,
-  //       });
-  //     });
-  //   };
-  // },
+  addNewMember: (channel, email) => {
+    return dispatch => {
+      channel.push('members:add', { email: email })
+      .receive('error', (data) => {
+        dispatch({
+          type: Constants.CURRENT_ACCOUNTING_ADD_MEMBER_ERROR,
+          error: data.error,
+        });
+      });
+    };
+  },
 
   // updateCard: (channel, card) => {
   //   return dispatch => {

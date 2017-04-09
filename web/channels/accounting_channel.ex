@@ -2,7 +2,7 @@ defmodule Hb.AccountingChannel do
 
   use Hb.Web, :channel
 
-  alias Hb.{Repo, User, Accounting, Transaction}
+  alias Hb.{Repo, User, Accounting, Transaction, AccountingUser}
 
   def join("accounting:" <> accounting_id, _params, socket) do
     # current_user = socket.assigns.current_user
@@ -79,30 +79,30 @@ defmodule Hb.AccountingChannel do
   #   end
   # end
 
-  # def handle_in("members:add", %{"email" => email}, socket) do
-  #   try do
-  #     accounting = socket.assigns.accounting
-  #     user = User
-  #       |> Repo.get_by(email: email)
+  def handle_in("members:add", %{"email" => email}, socket) do
+    try do
+      accounting = socket.assigns.accounting
+      user = User
+      |> Repo.get_by(email: email)
 
-  #     changeset = user
-  #     |> build_assoc(:user_accountings)
-  #     |> UserBoard.changeset(%{accounting_id: accounting.id})
+      changeset = user
+      |> build_assoc(:accounting_users)
+      |> AccountingUser.changeset(%{accounting_id: accounting.id})
 
-  #     case Repo.insert(changeset) do
-  #       {:ok, _accounting_user} ->
-  #         broadcast! socket, "member:added", %{user: user}
+      case Repo.insert(changeset) do
+        {:ok, _accounting_user} ->
+          broadcast! socket, "member:added", %{user: user}
 
-  #         Hb.Endpoint.broadcast_from! self(), "users:#{user.id}", "accounting:add", %{accounting: accounting}
+          # Hb.Endpoint.broadcast_from! self(), "users:#{user.id}", "accounting:add", %{accounting: accounting}
 
-  #         {:noreply, socket}
-  #       {:error, _changeset} ->
-  #         {:reply, {:error, %{error: "Error adding new member"}}, socket}
-  #     end
-  #   catch
-  #     _, _-> {:reply, {:error, %{error: "User does not exist"}}, socket}
-  #   end
-  # end
+          {:noreply, socket}
+        {:error, _changeset} ->
+          {:reply, {:error, %{error: "Error adding new member"}}, socket}
+      end
+    catch
+      _, _-> {:reply, {:error, %{error: "User does not exist"}}, socket}
+    end
+  end
 
   # def handle_in("card:update", %{"card" => card_params}, socket) do
   #   card = socket.assigns.accounting
@@ -232,7 +232,7 @@ defmodule Hb.AccountingChannel do
 
   defp get_current_accounting(socket, accounting_id) do
     socket.assigns.current_user
-    |> assoc(:owned_accounting)
+    |> assoc(:all_accounting)
     |> Accounting.preload_all
     |> Repo.get(accounting_id)
   end

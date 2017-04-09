@@ -1,6 +1,7 @@
 defmodule Hb.Accounting do
   use Hb.Web, :model
 
+  alias __MODULE__
   alias Hb.{User, Transaction, Currency, Account, Category}
 
   @derive {Poison.Encoder, only: [:id, :transactions, :currencies, :accounts, :categories]}
@@ -22,6 +23,10 @@ defmodule Hb.Accounting do
     struct
     |> cast(params, [:owner_id])
     |> validate_required([:owner_id])
+  end
+
+  def not_owned_by(query \\ %Accounting{}, user_id) do
+    from a in query, where: a.owner_id != ^user_id
   end
 
   def preload_all(query) do
