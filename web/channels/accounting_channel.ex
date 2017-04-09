@@ -2,22 +2,28 @@ defmodule Hb.AccountingChannel do
 
   use Hb.Web, :channel
 
-  alias Hb.{User, Accounting, Transaction}
+  alias Hb.{Repo, User, Accounting, Transaction}
 
   def join("accounting:" <> accounting_id, _params, socket) do
-    current_user = socket.assigns.current_user
+    # current_user = socket.assigns.current_user
     accounting = get_current_accounting(socket, accounting_id)
     {:ok, %{accounting: accounting}, assign(socket, :accounting, accounting)}
   end
 
   def handle_in("transactions:create", %{"transaction" => transaction_params}, socket) do
     accounting = socket.assigns.accounting
+    current_user = socket.assigns.current_user
+
+    transaction_params = transaction_params
+    |> Map.put("author_id", current_user.id)
+
     changeset = accounting
       |> build_assoc(:transactions)
       |> Transaction.changeset(transaction_params)
 
     case Repo.insert(changeset) do
       {:ok, transaction} ->
+        transaction = Repo.preload(transaction, :currency)
         broadcast! socket, "transaction:created", %{transaction: transaction}
         {:noreply, socket}
       {:error, changeset} ->
@@ -231,5 +237,5 @@ defmodule Hb.AccountingChannel do
     |> Repo.get(accounting_id)
   end
 
-  defp get_current_accounting(socket), do: get_current_accounting(socket, socket.assigns.accounting.id)
+  # defp get_current_accounting(socket), do: get_current_accounting(socket, socket.assigns.accounting.id)
 end

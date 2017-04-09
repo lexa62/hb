@@ -12,6 +12,7 @@ defmodule Hb.Repo.Migrations.CreateTransaction do
       timestamps()
     end
     create index(:transactions, [:accounting_id])
+    create index(:transactions, [:type])
 
   end
 end

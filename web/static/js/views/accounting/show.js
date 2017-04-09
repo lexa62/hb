@@ -6,6 +6,7 @@ import { connect }          from 'react-redux';
 import Actions              from '../../actions/current_accounting';
 import Constants            from '../../constants';
 import { setDocumentTitle } from '../../utils';
+// import Select2 from 'react-select2-wrapper';
 // import ListForm             from '../../components/lists/form';
 // import ListCard             from '../../components/lists/card';
 // import BoardMembers           from '../../components/boards/members';
@@ -15,7 +16,7 @@ import { setDocumentTitle } from '../../utils';
 class TransactionRow extends React.Component {
   render() {
     return (
-      <li>{`Amount: ${this.props.amount}, description: '${this.props.description}', type: ${this.props.type}, currency: ${this.props.currency}`}</li>
+      <li>{`Amount: ${this.props.amount}, description: '${this.props.description}', type: ${this.props.type}, currency: ${this.props.currency.name}`}</li>
     );
   }
 }
@@ -41,7 +42,10 @@ class AccountingForm extends React.Component {
       type: Constants.EXPENSE,
       amount: '',
       description: '',
-      currency: props.defaultCurrency.iso_code
+      currency_id: props.defaultCurrency.id,
+      source_account_id: props.accounts[0] && props.accounts[0].id,
+      category_id: props.categories[0] && props.categories[0].id,
+      exec_at: ''
     };
   };
 
@@ -50,7 +54,7 @@ class AccountingForm extends React.Component {
     e.preventDefault();
 
     const { dispatch, channel, accountingId, defaultCurrency } = this.props;
-    let { type, amount, description, currency } = this.state;
+    let { type, amount, description, currency_id, source_account_id, category_id, exec_at } = this.state;
 
     // amount = amount.replace(/,/g, '.');
 
@@ -58,7 +62,10 @@ class AccountingForm extends React.Component {
       type: type,
       amount: amount,
       description: description,
-      currency: currency
+      currency_id: currency_id,
+      source_account_id: source_account_id,
+      category_id: category_id,
+      exec_at: exec_at
     };
 
     dispatch(Actions.createTransaction(channel, data));
@@ -67,7 +74,9 @@ class AccountingForm extends React.Component {
       type: Constants.EXPENSE,
       amount: '',
       description: '',
-      currency: defaultCurrency.iso_code
+      currency_id: defaultCurrency.iso_code,
+      category_id: '',
+      exec_at: ''
     });
   }
 
@@ -92,6 +101,34 @@ class AccountingForm extends React.Component {
     return (
       <form onSubmit={::this._handleSubmit}>
         <label>
+          Дата:
+          <input name="exec_at" type="datetime" value={this.state.exec_at} onChange={::this._handleInputChange} />
+        </label>
+        <label>
+          Категория:
+          <select name="category_id" value={this.state.category_id} onChange={::this._handleInputChange}>
+            {
+              this.props.categories.filter((category) => category.type == this.state.type).map((c) => {
+                return (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                )
+              })
+            }
+          </select>
+        </label>
+        <label>
+          Счёт:
+          <select name="source_account_id" value={this.state.source_account_id} onChange={::this._handleInputChange}>
+            {
+              this.props.accounts.map((a) => {
+                return (
+                  <option key={a.id} value={a.id}>{a.name}</option>
+                )
+              })
+            }
+          </select>
+        </label>
+        <label>
           Amount:
           <input name="amount" type="text" value={this.state.amount} onChange={::this._handleInputChange} />
         </label>
@@ -105,11 +142,11 @@ class AccountingForm extends React.Component {
         </label>
         <label>
           Currency:
-          <select name="currency" value={this.state.currency} onChange={::this._handleInputChange}>
+          <select name="currency_id" value={this.state.currency_id} onChange={::this._handleInputChange}>
             {
               this.props.currencies.map((c) => {
                 return (
-                  <option key={c.id} value={c.iso_code}>{c.name}</option>
+                  <option key={c.id} value={c.id}>{c.name}</option>
                 )
               })
             }
@@ -305,9 +342,8 @@ class AccountingShowView extends React.Component {
 
   render() {
     const { currentAccounting, dispatch } = this.props;
-    const { fetching, channel, transactions, id, currencies } = currentAccounting;
+    const { fetching, channel, transactions, id, currencies, categories, accounts } = currentAccounting;
     let content = null;
-
     if (!fetching) {
       content = (
         <div>
@@ -315,9 +351,32 @@ class AccountingShowView extends React.Component {
             accountingId={id}
             dispatch={dispatch}
             currencies={currencies}
+            categories={categories}
+            accounts={accounts}
             defaultCurrency={currencies.find(c => c.is_default) || currencies[0]}
             channel={channel} />
           <TransactionList transactions={transactions} />
+          {/*<Select2
+            data={[
+              { id: 0, text: 'test'},
+              { id: 1, text: 'Еда',
+                children: [
+                  { text: 'Столовка', id: 2 },
+                  { text: 'Магазин', id: 3, children: [
+                    { text: 'Овощи', id: 4 },
+                    { text: 'Фрукты', id: 5 }
+                  ] },
+                ],
+              },
+              { text: 'Развлечения', id: 6 },
+              { text: 'Путешествия', id: 7 },
+            ]}
+            options={
+              {
+                placeholder: 'search',
+              }
+            }
+          />*/}
         </div>
       );
     }

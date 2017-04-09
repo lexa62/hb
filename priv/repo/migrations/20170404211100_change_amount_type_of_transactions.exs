@@ -4,18 +4,18 @@ defmodule Hb.Repo.Migrations.ChangeAmountTypeOfTransactions do
   def up do
     alter table(:transactions) do
       modify :amount, :integer
-      add :currency, :string, size: 3, null: false, default: "BYN"
+      add :currency_id, references(:currencies, on_delete: :nothing), null: false
     end
 
-    create index(:transactions, [:currency])
+    create index(:transactions, [:currency_id])
   end
 
   def down do
-    drop index(:transactions, [:currency])
+    drop index(:transactions, [:currency_id])
 
     alter table(:transactions) do
       modify :amount, :float
-      remove :currency
+      remove :currency_id
     end
   end
 end

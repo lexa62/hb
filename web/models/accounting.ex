@@ -1,14 +1,16 @@
 defmodule Hb.Accounting do
   use Hb.Web, :model
 
-  alias Hb.{Repo, User, Transaction, Currency}
+  alias Hb.{User, Transaction, Currency, Account, Category}
 
-  @derive {Poison.Encoder, only: [:id, :transactions, :currencies]}
+  @derive {Poison.Encoder, only: [:id, :transactions, :currencies, :accounts, :categories]}
 
   schema "accounting" do
     belongs_to :user, User, foreign_key: :owner_id
     has_many :transactions, Transaction
     has_many :currencies, Currency
+    has_many :accounts, Account
+    has_many :categories, Category
 
     timestamps()
   end
@@ -23,9 +25,14 @@ defmodule Hb.Accounting do
   end
 
   def preload_all(query) do
-    transactions_query = from t in Transaction, order_by: [desc: t.inserted_at]
-    currencies_query = from c in Currency
+    transactions_query = from t in Transaction, order_by: [desc: t.inserted_at], preload: :currency
+    currencies_query = from cur in Currency
+    accounts_query = from a in Account
+    categories_query = from cat in Category
 
-    from a in query, preload: [transactions: ^transactions_query, currencies: ^currencies_query]
+    from a in query, preload: [transactions: ^transactions_query,
+                               currencies: ^currencies_query,
+                               accounts: ^accounts_query,
+                               categories: ^categories_query]
   end
 end

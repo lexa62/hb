@@ -12,6 +12,7 @@ defmodule Hb.Repo.Migrations.CreateCurrency do
       timestamps()
     end
     create index(:currencies, [:accounting_id])
+    create index(:currencies, [:is_default])
     create unique_index(:currencies, [:iso_code])
     create unique_index(:currencies, [:is_default, :accounting_id],
       where: "is_default = true")

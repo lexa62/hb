@@ -12,7 +12,7 @@ defmodule Hb.RegistrationController  do
       {:ok, user} ->
         {:ok, jwt, _full_claims} = Guardian.encode_and_sign(user, :token)
 
-        changeset = user
+        user
         |> Ecto.build_assoc(:owned_accounting)
         |> Accounting.changeset(%{})
         |> Repo.insert!
