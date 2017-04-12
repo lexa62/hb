@@ -4,7 +4,7 @@ defmodule Hb.Transaction do
   # alias __MODULE__
   alias Hb.{Accounting, Currency, Category, User, Account}
 
-  @derive {Poison.Encoder, only: [:id, :amount, :description, :type, :currency]}
+  # @derive {Poison.Encoder, only: [:id, :amount, :description, :type, :currency]}
 
   schema "transactions" do
     field :amount, Money.Ecto.Type

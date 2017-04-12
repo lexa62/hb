@@ -20,6 +20,7 @@ const Actions = {
         dispatch({
           type: Constants.CURRENT_ACCOUNTING_TRANSACTION_CREATED,
           transaction: msg.transaction,
+          currency_balance: msg.currency_balance
         });
       });
 

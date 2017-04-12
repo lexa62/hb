@@ -340,6 +340,41 @@ class AccountingShowView extends React.Component {
   //   dispatch(Actions.updateCard(channel, card));
   // }
 
+  _renderAccounts(accounts) {
+    return accounts.map((a) => {
+      const content = a.currency_balances.map((c) => {
+        return <li key={c.id}>{c.current_amount} {c.currency.name}</li>;
+      });
+      return (
+        <div key={a.id}>
+          <span>{a.name}</span>
+          <ul>{content}</ul>
+        </div>
+      )
+    })
+  }
+
+  _renderTotal(accounts) {
+    let result = {};
+    accounts.forEach((a) => {
+      a.currency_balances.forEach((c) => {
+        const amount = parseFloat(c.current_amount)
+        if(result[c.currency.name]) result[c.currency.name] += amount;
+        else result[c.currency.name] = amount;
+      });
+    });
+    let content = [];
+    for(let k in result) {
+      content.push(<li key={k}>{result[k]} {k}</li>);
+    }
+    return (
+      <div>
+        <h3>Итого:</h3>
+        <ul>{content}</ul>
+      </div>
+    );
+  }
+
   render() {
     const { currentAccounting, dispatch } = this.props;
     const { fetching, channel, transactions, id, currencies, categories, accounts, error } = currentAccounting;
@@ -358,15 +393,8 @@ class AccountingShowView extends React.Component {
           <TransactionList transactions={transactions} />
           <MemberForm dispatch={dispatch} channel={channel} error={error} />
           <div className="well">
-            <ul>
-              {
-                accounts.map((a) => {
-                  return (
-                    <li key={a.id}>{`${a.name}`}</li>
-                  )
-                })
-              }
-            </ul>
+            {::this._renderAccounts(accounts)}
+            {::this._renderTotal(accounts)}
           </div>
           {/*<Select2
             data={[
