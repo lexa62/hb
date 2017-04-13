@@ -3,7 +3,7 @@ defmodule Hb.AccountingTest do
 
   alias Hb.Accounting
 
-  @valid_attrs %{}
+  @valid_attrs %{owner_id: 1}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do

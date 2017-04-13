@@ -35,9 +35,10 @@ defmodule Hb.CurrencyBalance do
     #                                                       t_e.currency_id == ^(model.currency_id),
     #                                                 select: sum(t_e.amount)
 
-    query = from t in Transaction, where: t.source_account_id == ^(model.account_id) and
-                                                 t.currency_id == ^(model.currency_id),
-                                          select: {t.type, t.amount, t.source_account_id, t.destination_account_id}
+    query = from t in Transaction, where: (t.source_account_id == ^(model.account_id) or
+                                           t.destination_account_id == ^(model.account_id)) and
+                                           t.currency_id == ^(model.currency_id),
+                                   select: {t.type, t.amount, t.source_account_id, t.destination_account_id}
     current_amount = Repo.all(query)
     |> Enum.reduce(Money.new(0), fn(t, acc) ->
         case t do

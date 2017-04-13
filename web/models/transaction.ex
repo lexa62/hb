@@ -28,7 +28,7 @@ defmodule Hb.Transaction do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [:amount, :description, :type, :currency_id, :accounting_id, :author_id, :category_id, :source_account_id, :destination_account_id, :exec_at])
-    |> validate_required([:amount, :type, :author_id, :category_id, :source_account_id, :exec_at])
+    |> validate_required([:amount, :type, :author_id, :category_id, :source_account_id, :exec_at, :accounting_id, :currency_id])
   end
 
   defimpl Poison.Encoder, for: Hb.Transaction do

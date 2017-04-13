@@ -3,7 +3,7 @@ defmodule Hb.AccountTest do
 
   alias Hb.Account
 
-  @valid_attrs %{is_default: true, name: "some content"}
+  @valid_attrs %{is_default: true, name: "some content", accounting_id: 1}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do

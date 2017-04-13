@@ -19,7 +19,7 @@ defmodule Hb.Mixfile do
   def application do
     [mod: {Hb, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :comeonin, :httpoison, :cachex, :arbor]]
+                    :phoenix_ecto, :postgrex, :comeonin, :httpoison, :cachex, :arbor, :nimble_csv]]
   end
 
   # Specifies which paths to compile per environment.
@@ -44,8 +44,9 @@ defmodule Hb.Mixfile do
      {:httpoison, "~> 0.11.1"},
      {:cachex, "~> 2.1"},
      {:money, "~> 1.2.1"},
-     {:currencies, "~> 0.4.1"},
-     {:arbor, "~> 1.0.3"}]
+     # {:currencies, "~> 0.4.1"},
+     {:arbor, "~> 1.0.3"},
+     {:nimble_csv, "~> 0.1.0"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.

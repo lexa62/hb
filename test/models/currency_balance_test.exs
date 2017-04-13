@@ -3,7 +3,7 @@ defmodule Hb.CurrencyBalanceTest do
 
   alias Hb.CurrencyBalance
 
-  @valid_attrs %{current_amount: 42, initial_amount: 42}
+  @valid_attrs %{current_amount: 42, initial_amount: 42, account_id: 1, currency_id: 1}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do
