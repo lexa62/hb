@@ -1,4 +1,7 @@
 import Constants  from '../constants';
+import { httpGet, httpPost, httpPostFile }  from '../utils';
+
+import fileDownload  from 'react-file-download';
 
 const Actions = {
   connectToChannel: (socket, accountingId) => {
@@ -111,6 +114,22 @@ const Actions = {
     return dispatch => {
       channel.push('transactions:create', { transaction: data });
     };
+  },
+
+
+  exportTransactions: (accounting_id) => {
+    httpGet(`/api/v1/accounting/${accounting_id}/transactions/export`)
+    .then((data) => {
+      fileDownload(data.content, 'export.csv');
+    });
+  },
+
+  importTransactions: (accounting_id, data) => {
+    console.log(data);
+    httpPostFile(`/api/v1/accounting/${accounting_id}/transactions/import`, data)
+    .then((data) => {
+      console.log(data);
+    });
   },
 
   addNewMember: (channel, email) => {

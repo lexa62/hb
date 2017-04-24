@@ -9,6 +9,7 @@ import { setDocumentTitle } from '../../utils';
 // import Select2 from 'react-select2-wrapper';
 // import ListForm             from '../../components/lists/form';
 import MemberForm             from '../../components/accounting/member_form';
+import ImportTransactionsForm             from '../../components/accounting/import_transactions_form';
 // import BoardMembers           from '../../components/boards/members';
 
 // @DragDropContext(HTML5Backend)
@@ -375,6 +376,12 @@ class AccountingShowView extends React.Component {
     );
   }
 
+  _exportTransactions(e) {
+    e.preventDefault();
+
+    Actions.exportTransactions(this.props.currentAccounting.id);
+  }
+
   render() {
     const { currentAccounting, dispatch } = this.props;
     const { fetching, channel, transactions, id, currencies, categories, accounts, error } = currentAccounting;
@@ -396,6 +403,8 @@ class AccountingShowView extends React.Component {
             {::this._renderAccounts(accounts)}
             {::this._renderTotal(accounts)}
           </div>
+          <a href="" onClick={::this._exportTransactions}>Export transactions</a>
+          <ImportTransactionsForm accountingId={id} />
           {/*<Select2
             data={[
               { id: 0, text: 'test'},

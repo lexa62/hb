@@ -26,7 +26,10 @@ defmodule Hb.Router do
       post "/sessions", SessionController, :create
       delete "/sessions", SessionController, :delete
 
-      resources "/accounting", AccountingController, only: [:index]
+      resources "/accounting", AccountingController, only: [:index] do
+        get "/transactions/export", TransactionController, :export
+        post "/transactions/import", TransactionController, :import
+      end
     end
   end
 

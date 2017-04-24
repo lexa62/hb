@@ -13,6 +13,11 @@ function buildHeaders() {
   return { ...defaultHeaders, Authorization: authToken };
 }
 
+function buildAuthorizationHeader() {
+  const authToken = localStorage.getItem('phoenixAuthToken');
+  return { Authorization: authToken }
+}
+
 export function checkStatus(response) {
   if (response.status >= 200 && response.status < 300) {
     return response;
@@ -43,6 +48,19 @@ export function httpPost(url, data) {
     method: 'post',
     headers: buildHeaders(),
     body: body,
+  })
+  .then(checkStatus)
+  .then(parseJSON);
+}
+
+export function httpPostFile(url, data) {
+
+  debugger;
+
+  return fetch(url, {
+    method: 'post',
+    headers: buildAuthorizationHeader(),
+    body: data,
   })
   .then(checkStatus)
   .then(parseJSON);
