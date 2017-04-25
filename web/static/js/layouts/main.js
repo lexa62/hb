@@ -1,56 +1,89 @@
 import React from 'react';
 import { Link } from 'react-router';
+import { connect }          from 'react-redux';
+import { Navbar, Nav, NavItem, MenuItem, NavDropdown } from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
+import SessionActions              from '../actions/sessions';
 
-export default class MainLayout extends React.Component {
-  constructor() {
-    super();
+class MainLayout extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  _handleSignOut() {
+    this.props.dispatch(SessionActions.signOut());
   }
 
   render() {
+    const { currentAccounting, currentUser } = this.props;
+    let navbar_main_links = null;
+    if(currentAccounting.id) {
+      navbar_main_links = (
+        <Nav>
+          <LinkContainer to={`/accounting/${currentAccounting.id}`} onlyActiveOnIndex={true}>
+            <NavItem eventKey={1}>Операции</NavItem>
+          </LinkContainer>
+          <LinkContainer to={`/accounting/${currentAccounting.id}/financial_goals`}>
+            <NavItem eventKey={2}>Накопления</NavItem>
+          </LinkContainer>
+          <LinkContainer to={`/accounting/${currentAccounting.id}/budget_planning`}>
+            <NavItem eventKey={3}>Планирование</NavItem>
+          </LinkContainer>
+          <LinkContainer to={`/accounting/${currentAccounting.id}/reports`}>
+            <NavItem eventKey={4}>Отчёты</NavItem>
+          </LinkContainer>
+          {/*<LinkContainer to={`/accounting/${currentAccounting.id}/settings`}>
+            <NavItem eventKey={5}>Настройки</NavItem>
+          </LinkContainer>*/}
+          <NavDropdown eventKey={6} title="Настройки" id="basic-nav-dropdown">
+            <MenuItem eventKey={6.1}>Категории затрат</MenuItem>
+            <MenuItem eventKey={6.2}>Источники доходов</MenuItem>
+            <MenuItem eventKey={6.3}>Счета</MenuItem>
+            <MenuItem eventKey={6.4}>Валюты</MenuItem>
+            <MenuItem eventKey={6.5}>Экспорт/импорт</MenuItem>
+            <MenuItem eventKey={6.6}>Участники</MenuItem>
+          </NavDropdown>
+        </Nav>
+      );
+    }
     return (
       <div>
-        <nav className="navbar navbar-default navbar-static-top">
-          <div className="container">
-            <div className="navbar-header">
-              <button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                <span className="sr-only">Toggle navigation</span>
-                <span className="icon-bar"></span>
-                <span className="icon-bar"></span>
-                <span className="icon-bar"></span>
-              </button>
-              <Link className="navbar-brand" to="/">HB</Link>
-            </div>
-            <div id="navbar" className="navbar-collapse collapse">
-              <ul className="nav navbar-nav">
-                <li className="active"><a href="#">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
-                <li className="dropdown">
-                  <a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span className="caret"></span></a>
-                  <ul className="dropdown-menu">
-                    <li><a href="#">Action</a></li>
-                    <li><a href="#">Another action</a></li>
-                    <li><a href="#">Something else here</a></li>
-                    <li role="separator" className="divider"></li>
-                    <li className="dropdown-header">Nav header</li>
-                    <li><a href="#">Separated link</a></li>
-                    <li><a href="#">One more separated link</a></li>
-                  </ul>
-                </li>
-              </ul>
-              <ul className="nav navbar-nav navbar-right">
-                <li><a href="../navbar/">Default</a></li>
-                <li className="active"><a href="./">Static top <span className="sr-only">(current)</span></a></li>
-                <li><a href="../navbar-fixed-top/">Fixed top</a></li>
-              </ul>
-            </div>
-          </div>
-        </nav>
+        <Navbar fluid>
+          <Navbar.Header>
+            <Navbar.Brand>
+              <Link to="/">HB</Link>
+            </Navbar.Brand>
+            <Navbar.Toggle />
+          </Navbar.Header>
+          <Navbar.Collapse>
+            {navbar_main_links}
+            <Nav pullRight>
+              {currentUser && currentUser.email ?
+                (
+                  <NavDropdown eventKey={1} title={currentUser.email} id="dropdown-user">
+                    <MenuItem eventKey={1.1} onSelect={::this._handleSignOut}>Выход</MenuItem>
+                  </NavDropdown>
+                ) :(
+                  <LinkContainer to="/sign_in">
+                    <NavItem eventKey={2}>Войти</NavItem>
+                  </LinkContainer>
+                )
+              }
+            </Nav>
+          </Navbar.Collapse>
+        </Navbar>
 
-        <div className="container">
+        <div className="container-fluid">
           {this.props.children}
         </div>
       </div>
     );
   }
 }
+
+const mapStateToProps = (state) => ({
+  currentAccounting: state.currentAccounting,
+  currentUser: state.session.currentUser
+});
+
+export default connect(mapStateToProps)(MainLayout);

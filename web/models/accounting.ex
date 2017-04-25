@@ -2,7 +2,7 @@ defmodule Hb.Accounting do
   use Hb.Web, :model
 
   alias __MODULE__
-  alias Hb.{User, Transaction, Currency, Account, Category}
+  alias Hb.{User, Transaction, Currency, Account, Category, FinancialGoal}
 
   @derive {Poison.Encoder, only: [:id, :transactions, :currencies, :accounts, :categories]}
 
@@ -12,6 +12,7 @@ defmodule Hb.Accounting do
     has_many :currencies, Currency
     has_many :accounts, Account
     has_many :categories, Category
+    has_many :financial_goals, FinancialGoal
 
     timestamps()
   end

@@ -99,11 +99,6 @@ module.exports = {
         "NODE_ENV": JSON.stringify(env),
       },
     }),
-    new Webpack.ProvidePlugin({
-      jQuery: 'jquery',
-      $: 'jquery',
-      jquery: 'jquery'
-    }),
     new Webpack.optimize.DedupePlugin(),
     new ExtractTextPlugin("css/app.css"),
     new CopyPlugin([{from: "./web/static/assets"}])

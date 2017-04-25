@@ -2,7 +2,7 @@ defmodule Hb.AccountingChannel do
   require IEx
   use Hb.Web, :channel
 
-  alias Hb.{Repo, User, Accounting, Transaction, AccountingUser, CurrencyBalance, Account}
+  alias Hb.{Repo, User, Accounting, Transaction, AccountingUser, CurrencyBalance, Account, FinancialGoal}
 
   def join("accounting:" <> accounting_id, _params, socket) do
     # current_user = socket.assigns.current_user
@@ -124,27 +124,61 @@ defmodule Hb.AccountingChannel do
     end
   end
 
-  # def handle_in("card:update", %{"card" => card_params}, socket) do
-  #   card = socket.assigns.accounting
-  #     |> assoc(:cards)
-  #     |> Repo.get!(card_params["id"])
+  def handle_in("financial_goal:add", %{"financial_goal" => financial_goal_params}, socket) do
+    current_user = socket.assigns.current_user
 
-  #   changeset = Card.update_changeset(card, card_params)
+    financial_goal = socket.assigns.accounting
+      |> build_assoc(:financial_goals)
 
-  #   case Repo.update(changeset) do
-  #     {:ok, card} ->
-  #       accounting = get_current_accounting(socket)
+    changeset = FinancialGoal.changeset(financial_goal, financial_goal_params)
 
-  #       card = Card
-  #       |> Card.preload_all
-  #       |> Repo.get(card.id)
+    case Repo.insert(changeset) do
+      {:ok, financial_goal_schema} ->
+        financial_goal = FinancialGoal
+        |> FinancialGoal.preload_all
+        |> Repo.get(financial_goal_schema.id)
 
-  #       broadcast! socket, "card:updated", %{accounting: accounting, card: card}
-  #       {:noreply, socket}
-  #     {:error, _changeset} ->
-  #       {:reply, {:error, %{error: "Error updating card"}}, socket}
-  #   end
-  # end
+        broadcast! socket, "financial_goal:created", %{financial_goal: financial_goal}
+        {:noreply, socket}
+      {:error, _changeset} ->
+        {:reply, {:error, %{error: "Error creating financial goal"}}, socket}
+    end
+  end
+
+  def handle_in("financial_goal:update", %{"financial_goal" => financial_goal_params}, socket) do
+    financial_goal = socket.assigns.accounting
+      |> assoc(:financial_goals)
+      |> Repo.get!(financial_goal_params["id"])
+
+    changeset = FinancialGoal.changeset(financial_goal, financial_goal_params)
+
+    case Repo.update(changeset) do
+      {:ok, financial_goal} ->
+        financial_goal = FinancialGoal
+        |> FinancialGoal.preload_all
+        |> Repo.get(financial_goal.id)
+
+        broadcast! socket, "financial_goal:updated", %{financial_goal: financial_goal}
+        {:noreply, socket}
+      {:error, _changeset} ->
+        {:reply, {:error, %{error: "Error updating financial goal"}}, socket}
+    end
+  end
+
+  def handle_in("financial_goal:remove", %{"financial_goal_id" => financial_goal_id}, socket) do
+    financial_goal = socket.assigns.accounting
+      |> assoc(:financial_goals)
+      |> Repo.get!(financial_goal_id)
+
+    case Repo.delete(financial_goal) do
+      {:ok, financial_goal_schema} ->
+
+        broadcast! socket, "financial_goal:removed", %{financial_goal_id: financial_goal_schema.id}
+        {:noreply, socket}
+      {:error, _changeset} ->
+        {:reply, {:error, %{error: "Error removing financial goal"}}, socket}
+    end
+  end
 
   # def handle_in("list:update", %{"list" => list_params}, socket) do
   #   list = socket.assigns.accounting
@@ -163,28 +197,7 @@ defmodule Hb.AccountingChannel do
   #   end
   # end
 
-  # def handle_in("card:add_comment", %{"card_id" => card_id, "text" => text}, socket) do
-  #   current_user = socket.assigns.current_user
 
-  #   comment = socket.assigns.accounting
-  #     |> assoc(:cards)
-  #     |> Repo.get!(card_id)
-  #     |> build_assoc(:comments)
-
-  #   changeset = Comment.changeset(comment, %{text: text, user_id: current_user.id})
-
-  #   case Repo.insert(changeset) do
-  #     {:ok, _comment} ->
-  #       card = Card
-  #       |> Card.preload_all
-  #       |> Repo.get(card_id)
-
-  #       broadcast! socket, "comment:created", %{accounting: get_current_accounting(socket), card: card}
-  #       {:noreply, socket}
-  #     {:error, _changeset} ->
-  #       {:reply, {:error, %{error: "Error creating comment"}}, socket}
-  #   end
-  # end
 
   # def handle_in("card:add_member", %{"card_id" => card_id, "user_id" => user_id}, socket) do
   #   try do

@@ -74,24 +74,28 @@ const Actions = {
       //   });
       // });
 
-      // channel.on('list:updated', (msg) => {
-      //   dispatch({
-      //     type: Constants.BOARDS_SET_CURRENT_BOARD,
-      //     board: msg.board,
-      //   });
-      // });
+      channel.on('financial_goal:updated', (msg) => {
+        dispatch({
+          type: Constants.CURRENT_ACCOUNTING_FINANCIAL_GOAL_UPDATED,
+          financial_goal: msg.financial_goal,
+        });
+      });
 
-      // channel.on('comment:created', (msg) => {
-      //   dispatch({
-      //     type: Constants.BOARDS_SET_CURRENT_BOARD,
-      //     board: msg.board,
-      //   });
+      channel.on('financial_goal:created', (msg) => {
+        dispatch({
+          type: Constants.CURRENT_ACCOUNTING_FINANCIAL_GOAL_CREATED,
+          financial_goal: msg.financial_goal,
+        });
+      });
 
-      //   dispatch({
-      //     type: Constants.CURRENT_CARD_SET,
-      //     card: msg.card,
-      //   });
-      // });
+      channel.on('financial_goal:removed', (msg) => {
+        dispatch({
+          type: Constants.CURRENT_ACCOUNTING_FINANCIAL_GOAL_REMOVED,
+          id: msg.financial_goal_id,
+        });
+      });
+
+
 
       dispatch({
         type: Constants.CURRENT_ACCOUNTING_CONNECTED_TO_CHANNEL,
@@ -141,6 +145,57 @@ const Actions = {
           error: data.error,
         });
       });
+    };
+  },
+
+  fetchFinancialGoals: (accounting_id) => {
+    return dispatch => {
+      dispatch({ type: Constants.CURRENT_ACCOUNTING_FINANCIAL_GOALS_FETCHING });
+
+      httpGet(`/api/v1/accounting/${accounting_id}/financial_goals`)
+      .then((data) => {
+        dispatch({
+          type: Constants.CURRENT_ACCOUNTING_FINANCIAL_GOALS_RECEIVED,
+          financial_goals: data.financial_goals
+        });
+      });
+    };
+  },
+
+  showFinancialGoalForm: (show) => {
+    return dispatch => {
+      dispatch({
+        type: Constants.CURRENT_ACCOUNTING_SHOW_FINANCIAL_GOAL_FORM,
+        show: show
+      });
+    };
+  },
+
+  editFinancialGoal: (id) => {
+    return dispatch => {
+      dispatch({
+        type: Constants.CURRENT_ACCOUNTING_EDIT_FINANCIAL_GOAL,
+        id: id,
+      });
+    };
+  },
+
+  addFinancialGoal: (channel, financial_goal) => {
+    return dispatch => {
+      channel.push('financial_goal:add', { financial_goal: financial_goal });
+    };
+  },
+
+
+  updateFinancialGoal: (channel, financial_goal) => {
+    return dispatch => {
+      channel.push('financial_goal:update', { financial_goal: financial_goal });
+    };
+  },
+
+  removeFinancialGoal: (channel, id) => {
+    return dispatch => {
+      channel.push('financial_goal:remove', { financial_goal_id: id });
     };
   },
 

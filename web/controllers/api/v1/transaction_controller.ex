@@ -16,11 +16,6 @@ defmodule Hb.TransactionController do
 
     csv_content = TransactionsCsvSerializer.to_csv_string(transactions)
 
-    # conn
-    # |> put_resp_content_type("text/csv")
-    # |> put_resp_header("content-disposition", "attachment; filename=\"#{Date.utc_today}_export.csv\"")
-    # |> send_resp(200, csv_content)
-
     render(conn, "export.json", content: csv_content)
   end
 
@@ -32,19 +27,7 @@ defmodule Hb.TransactionController do
       IO.inspect File.stat(file.path)
     end
 
-
-    # transactions = current_user
-    #   |> assoc(:all_accounting)
-    #   |> Repo.get(accounting_id)
-    #   |> assoc(:transactions)
-    #   |> Repo.all
-
     result = TransactionsCsvSerializer.parse_and_save(file.path, accounting_id, current_user.id)
-
-    # conn
-    # |> put_resp_content_type("text/csv")
-    # |> put_resp_header("content-disposition", "attachment; filename=\"#{Date.utc_today}_export.csv\"")
-    # |> send_resp(200, csv_content)
 
     render(conn, "import.json", result: result)
   end

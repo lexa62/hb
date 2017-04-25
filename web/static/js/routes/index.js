@@ -6,6 +6,9 @@ import HomeIndexView                from '../views/home';
 import RegistrationsNew             from '../views/registrations/new';
 import SessionsNew                  from '../views/sessions/new';
 import AccountingShowView               from '../views/accounting/show';
+import AccountingTransactionsView   from '../views/accounting/transactions';
+import AccountingSettingsView       from '../views/accounting/settings';
+import AccountingFinancialGoalsView from '../views/accounting/financial_goals';
 // import CardsShowView                from '../views/cards/show';
 import Actions                      from '../actions/sessions';
 
@@ -32,7 +35,11 @@ export default function configRoutes(store) {
       <Route path="/" component={AuthenticatedContainer} onEnter={_ensureAuthenticated}>
         <IndexRoute component={HomeIndexView} />
 
-        <Route path="/accounting/:id" component={AccountingShowView} />
+        <Route path="/accounting/:id" component={AccountingShowView}>
+          <IndexRoute component={AccountingTransactionsView} />
+          <Route path="financial_goals" component={AccountingFinancialGoalsView} />
+          <Route path="settings" component={AccountingSettingsView} />
+        </Route>
       </Route>
     </Route>
   );
