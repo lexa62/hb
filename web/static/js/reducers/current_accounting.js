@@ -5,7 +5,8 @@ const initialState = {
   channel: null,
   error: null,
   fetching: true,
-  fetching_financial_goals: true
+  fetching_financial_goals: true,
+  report_transactions: []
 };
 
 export default function reducer(state = initialState, action = {}) {
@@ -81,6 +82,11 @@ export default function reducer(state = initialState, action = {}) {
 
     case Constants.CURRENT_ACCOUNTING_ADD_MEMBER_ERROR:
       return { ...state, error: action.error };
+
+
+    case Constants.CURRENT_ACCOUNTING_REPORT_RECEIVED:
+      return { ...state, report_transactions: action.report_transactions };
+
 
     case Constants.CURRENT_ACCOUNTING_RESET:
       return initialState;

@@ -40,22 +40,22 @@ defmodule Hb.CurrencyBalance do
                                            t.currency_id == ^(model.currency_id),
                                    select: {t.type, t.amount, t.source_account_id, t.destination_account_id}
     current_amount = Repo.all(query)
-    |> Enum.reduce(Money.new(0), fn(t, acc) ->
-        case t do
-          {:expense, amount, _source_account_id, _destination_account_id} ->
-            Money.subtract(acc, amount)
-          {:income, amount, _source_account_id, _destination_account_id} ->
-            Money.add(acc, amount)
-          {:transfer, amount, source_account_id, destination_account_id} ->
-            cond do
-              source_account_id == model.account_id ->
-                Money.subtract(acc, amount)
-              destination_account_id == model.account_id ->
-                Money.add(acc, amount)
-            end
-        end
-      end)
-    |> Money.add(model.initial_amount)
+      |> Enum.reduce(Money.new(0), fn(t, acc) ->
+          case t do
+            {:expense, amount, _source_account_id, _destination_account_id} ->
+              Money.subtract(acc, amount)
+            {:income, amount, _source_account_id, _destination_account_id} ->
+              Money.add(acc, amount)
+            {:transfer, amount, source_account_id, destination_account_id} ->
+              cond do
+                source_account_id == model.account_id ->
+                  Money.subtract(acc, amount)
+                destination_account_id == model.account_id ->
+                  Money.add(acc, amount)
+              end
+          end
+        end)
+      |> Money.add(model.initial_amount)
     changeset(model, %{current_amount: current_amount})
     # result = from t_i in subquery(income_transactions),
 

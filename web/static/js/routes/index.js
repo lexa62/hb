@@ -9,6 +9,7 @@ import AccountingShowView               from '../views/accounting/show';
 import AccountingTransactionsView   from '../views/accounting/transactions';
 import AccountingSettingsView       from '../views/accounting/settings';
 import AccountingFinancialGoalsView from '../views/accounting/financial_goals';
+import AccountingReportsView from '../views/accounting/reports';
 // import CardsShowView                from '../views/cards/show';
 import Actions                      from '../actions/sessions';
 
@@ -38,6 +39,7 @@ export default function configRoutes(store) {
         <Route path="/accounting/:id" component={AccountingShowView}>
           <IndexRoute component={AccountingTransactionsView} />
           <Route path="financial_goals" component={AccountingFinancialGoalsView} />
+          <Route path="reports" component={AccountingReportsView} />
           <Route path="settings" component={AccountingSettingsView} />
         </Route>
       </Route>

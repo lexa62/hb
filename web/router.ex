@@ -28,6 +28,7 @@ defmodule Hb.Router do
 
       resources "/accounting", AccountingController, only: [:index] do
         get "/transactions/export", TransactionController, :export
+        get "/transactions/report", TransactionController, :report
         post "/transactions/import", TransactionController, :import
 
         resources "/financial_goals", FinancialGoalController, only: [:index]
