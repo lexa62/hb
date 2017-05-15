@@ -203,7 +203,7 @@ const Actions = {
     return dispatch => {
       dispatch({ type: Constants.CURRENT_ACCOUNTING_REPORT_FETCHING });
 
-      httpGet(`/api/v1/accounting/${accounting_id}/transactions/report?from=${data.from}&to=${data.to}`)
+      httpGet(`/api/v1/accounting/${accounting_id}/report?from=${data.from}&to=${data.to}`)
       .then((data) => {
         dispatch({
           type: Constants.CURRENT_ACCOUNTING_REPORT_RECEIVED,
