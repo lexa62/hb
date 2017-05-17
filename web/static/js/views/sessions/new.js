@@ -1,68 +1,46 @@
 import React, {PropTypes}   from 'react';
 import { connect }          from 'react-redux';
 import { Link }             from 'react-router';
-
 import { setDocumentTitle } from '../../utils';
 import Actions              from '../../actions/sessions';
+import { Button, ControlLabel, Form, FormControl, FormGroup, HelpBlock, ButtonToolbar, Col } from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
 
 class SessionsNew extends React.Component {
   componentDidMount() {
-    setDocumentTitle('Sign in');
+    setDocumentTitle('Аутентификация');
   }
 
   _handleSubmit(e) {
     e.preventDefault();
 
-    const { email, password } = this.refs;
     const { dispatch } = this.props;
 
-    dispatch(Actions.signIn(email.value, password.value));
-  }
-
-  _renderError() {
-    let { error } = this.props;
-
-    if (!error) return false;
-
-    return (
-      <div className="error">
-        {error}
-      </div>
-    );
+    dispatch(Actions.signIn(this.email.value, this.password.value));
   }
 
   render() {
+    let { error } = this.props;
     return (
-      <div className='view-container sessions new'>
-        <main>
-          <header>
-            <div className="logo" />
-          </header>
-          <form id="sign_in_form" onSubmit={::this._handleSubmit}>
-            {::this._renderError()}
-            <div className="field">
-              <input
-                ref="email"
-                type="Email"
-                id="user_email"
-                placeholder="Email"
-                required="true"
-                defaultValue="lexa62@tut.by"/>
-            </div>
-            <div className="field">
-              <input
-                ref="password"
-                type="password"
-                id="user_password"
-                placeholder="Password"
-                required="true"
-                defaultValue="123123123"/>
-            </div>
-            <button type="submit">Sign in</button>
-          </form>
-          <Link to="/sign_up">Create new account</Link>
-        </main>
-      </div>
+      <Col md={4}>
+        <Form onSubmit={::this._handleSubmit}>
+          <HelpBlock>{error}</HelpBlock>
+          <FormGroup controlId="formHorizontalEmail" validationState={error ? "error" : null}>
+            <ControlLabel>Email </ControlLabel>
+            <FormControl type="email" inputRef={ref => { this.email = ref }} placeholder="Email" />
+          </FormGroup>
+          <FormGroup controlId="formHorizontalPassword" validationState={error ? "error" : null}>
+            <ControlLabel>Password </ControlLabel>
+            <FormControl type="password" inputRef={ref => { this.password = ref }} placeholder="Password" />
+          </FormGroup>
+          <ButtonToolbar>
+            <Button type="submit" bsStyle="primary">Войти</Button>
+            <LinkContainer to="/sign_up">
+              <Button>Создать новый аккаунт</Button>
+            </LinkContainer>
+          </ButtonToolbar>
+        </Form>
+      </Col>
     );
   }
 }

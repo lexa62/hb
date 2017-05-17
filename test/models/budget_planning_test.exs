@@ -3,7 +3,7 @@ defmodule Hb.BudgetPlanningTest do
 
   alias Hb.BudgetPlanning
 
-  @valid_attrs %{expense_amount: 42, income_amount: 42, period: %{hour: 14, min: 0, sec: 0}}
+  @valid_attrs %{expense_amount: 42, income_amount: 42, period: Date.utc_today, accounting_id: 1}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do

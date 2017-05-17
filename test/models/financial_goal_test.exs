@@ -3,7 +3,7 @@ defmodule Hb.FinancialGoalTest do
 
   alias Hb.FinancialGoal
 
-  @valid_attrs %{current_amount: 42, goal_amount: 42, name: "some content"}
+  @valid_attrs %{current_amount: 42, goal_amount: 42, name: "some content", accounting_id: 1, currency_id: 1}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do
