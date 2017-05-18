@@ -17,9 +17,9 @@ defmodule Hb.RegistrationController  do
         |> Accounting.changeset(%{})
         |> Repo.insert!
 
-        accounting
+        user
         |> build_assoc(:accounting_users)
-        |> AccountingUser.changeset(%{user_id: user.id})
+        |> AccountingUser.changeset(%{accounting_id: accounting.id})
         |> Repo.insert!
 
         conn
