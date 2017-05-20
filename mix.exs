@@ -47,7 +47,8 @@ defmodule Hb.Mixfile do
      # {:currencies, "~> 0.4.1"},
      {:arbor, "~> 1.0.3"},
      {:nimble_csv, "~> 0.1.0"},
-     {:filterable, "~> 0.5.2"}]
+     {:filterable, "~> 0.5.2"},
+     {:exrm, "~> 1.0"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.

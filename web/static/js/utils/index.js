@@ -77,19 +77,18 @@ export function httpDelete(url) {
 }
 
 export function setDocumentTitle(title) {
-  document.title = `${title} | Home accountancy`;
+  document.title = `${title} | Hb`;
 }
 
 export function renderErrorsFor(errors, ref) {
   if (!errors) return false;
-
-  return errors.map((error, i) => {
+  let related_errors = errors.map((error, i) => {
     if (error[ref]) {
-      return (
-        <div key={i} className="error">
-          {error[ref]}
-        </div>
-      );
+      return error[ref];
     }
+  });
+
+  return related_errors.filter(function(element) {
+    return element !== undefined;
   });
 }

@@ -24,26 +24,26 @@ defmodule Hb.AccountingChannel do
     case Repo.insert(changeset) do
       {:ok, transaction} ->
         transaction = Repo.preload(transaction, :currency)
-        currency_balance = nil
-        case transaction.type do
-          :transfer ->
-            Repo.all(from a in Account, where: a.id in [^transaction.source_account_id, ^transaction.destination_account_id])
-            |> Enum.each(fn(account) ->
-              currency_balance = account
+        currency_balance =
+          case transaction.type do
+            :transfer ->
+              Repo.all(from a in Account, where: a.id in [^transaction.source_account_id, ^transaction.destination_account_id])
+              |> Enum.map(fn(account) ->
+                account
+                |> assoc(:currency_balances)
+                |> Repo.get_by(currency_id: transaction.currency_id) || Repo.insert!(%CurrencyBalance{currency_id: transaction.currency_id, account_id: account.id, initial_amount: Money.new(0), current_amount: Money.new(0)})
+                |> CurrencyBalance.calculate_current_amount
+                |> Repo.update!
+              end)
+            _ ->
+              Repo.get(Account, transaction.source_account_id)
               |> assoc(:currency_balances)
-              |> Repo.get_by(currency_id: transaction.currency_id) || Repo.insert!(%CurrencyBalance{currency_id: transaction.currency_id, account_id: account.id, initial_amount: Money.new(0), current_amount: Money.new(0)})
+              |> Repo.get_by(currency_id: transaction.currency_id) || Repo.insert!(%CurrencyBalance{currency_id: transaction.currency_id, account_id: transaction.source_account_id, initial_amount: Money.new(0), current_amount: Money.new(0)})
               |> CurrencyBalance.calculate_current_amount
               |> Repo.update!
-              |> Repo.preload(:currency)
-            end)
-          _ ->
-            currency_balance = Repo.get(Account, transaction.source_account_id)
-            |> assoc(:currency_balances)
-            |> Repo.get_by(currency_id: transaction.currency_id) || Repo.insert!(%CurrencyBalance{currency_id: transaction.currency_id, account_id: transaction.source_account_id, initial_amount: Money.new(0), current_amount: Money.new(0)})
-            |> CurrencyBalance.calculate_current_amount
-            |> Repo.update!
-            |> Repo.preload(:currency)
-        end
+          end
+        # IEx.pry
+        currency_balance = Repo.preload(currency_balance, :currency)
         broadcast! socket, "transaction:created", %{transaction: transaction, currency_balance: currency_balance}
         {:noreply, socket}
       {:error, changeset} ->

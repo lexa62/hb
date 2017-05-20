@@ -11,7 +11,7 @@ import { setDocumentTitle } from '../../utils';
 // import BoardMembers           from '../../components/boards/members';
 
 // @DragDropContext(HTML5Backend)
-import { Panel, ListGroup, ListGroupItem, ProgressBar, Form, FormGroup, ControlLabel, FormControl, Button } from 'react-bootstrap';
+import { Grid, Row, Col, Panel, ListGroup, ListGroupItem, ProgressBar, Form, FormGroup, ControlLabel, FormControl, Button } from 'react-bootstrap';
 
 class FinancialGoalForm extends React.Component {
   constructor(props) {
@@ -76,23 +76,23 @@ class FinancialGoalForm extends React.Component {
   render() {
     const { current_amount, goal_amount, name, id, isEdit, currencies } = this.props;
     return (
-      <Form inline onSubmit={::this._handleSubmit}>
+      <Form inline onSubmit={::this._handleSubmit} className="financial-goals-form">
         <FormGroup>
           <ControlLabel>Название</ControlLabel>
           {' '}
-          <FormControl name="name" type="text" value={this.state.name} onChange={::this._handleInputChange} />
+          <FormControl name="name" type="text" value={this.state.name} size="8" onChange={::this._handleInputChange} />
         </FormGroup>
         {' '}
         <FormGroup>
           <ControlLabel>Накоплено</ControlLabel>
           {' '}
-          <FormControl type="text" placeholder="100" name="current_amount" value={this.state.current_amount} onChange={::this._handleInputChange} />
+          <FormControl type="text" placeholder="100" size="8" name="current_amount" value={this.state.current_amount} onChange={::this._handleInputChange} />
         </FormGroup>
         {' '}
         <FormGroup>
           <ControlLabel>Сумма</ControlLabel>
           {' '}
-          <FormControl type="text" placeholder="1000" name="goal_amount" value={this.state.goal_amount} onChange={::this._handleInputChange} />
+          <FormControl type="text" placeholder="1000" size="8" name="goal_amount" value={this.state.goal_amount} onChange={::this._handleInputChange} />
         </FormGroup>
         {' '}
         <FormGroup>
@@ -109,9 +109,10 @@ class FinancialGoalForm extends React.Component {
           </FormControl>
         </FormGroup>
         {' '}
-        <Button type="submit">
+        <Button type="submit" bsStyle="primary">
           Применить
         </Button>
+        {' '}
         <a onClick={::this._handleCancelEditClick}>Отмена</a>
       </Form>
     )
@@ -144,15 +145,9 @@ class FinancialGoal extends React.Component {
         <ListGroupItem key={id}>
           {name}
           <br/>
-          {current_amount}
-          {' '}
-          {currency.name}
-          {'/'}
-          {goal_amount}
-          {' '}
-          {currency.name}
           <ProgressBar now={100*current_amount/goal_amount} label={`${current_amount}/${goal_amount} ${currency.name}`} />
           <a onClick={::this._handleEditClick}>Обновить</a>
+          {' '}
           <a onClick={::this._handleDeleteClick}>Удалить</a>
         </ListGroupItem>
       )
@@ -236,7 +231,10 @@ class AccountingFinancialGoalsView extends React.Component {
                   currencies={currencies} />
             }
           </ListGroup>
-          <a onClick={::this._handleAddClick}>Добавить</a>
+          {
+              !showFinancialGoalForm &&
+                <a onClick={::this._handleAddClick}>Добавить</a>
+          }
         </Panel>
       );
     }

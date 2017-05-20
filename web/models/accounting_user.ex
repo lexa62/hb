@@ -3,6 +3,8 @@ defmodule Hb.AccountingUser do
 
   alias Hb.{Accounting, User}
 
+  @derive {Poison.Encoder, only: [:id, :user]}
+
   schema "accounting_users" do
     belongs_to :accounting, Accounting
     belongs_to :user, User

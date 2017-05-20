@@ -8,22 +8,42 @@ import { setDocumentTitle } from '../../utils';
 // import BoardCard            from '../../components/boards/card';
 // import BoardForm            from '../../components/boards/form';
 import Actions              from '../../actions/sessions';
+import { Table, Col, Grid, Row } from 'react-bootstrap';
 import { push }           from 'react-router-redux';
 
-class AccountingCard extends React.Component {
-  // _handleClick() {
-  //   this.props.dispatch(push(`/accounting/${this.props.id}`));
-  // }
+class OwnedAccounting extends React.Component {
 
   render() {
+    const inserted_at = new Date(this.props.inserted_at);
     return (
-      <div id={this.props.id} className="board">
-        <div className="inner">
+      <tr key={this.props.id}>
+        <td>
           <Link to={`/accounting/${this.props.id}`}>
-            <li>#{this.props.id}</li>
+            {this.props.id}
           </Link>
-        </div>
-      </div>
+        </td>
+        <td>{this.props.transactions.length}</td>
+        <td>{inserted_at.toLocaleString()}</td>
+      </tr>
+    );
+  }
+}
+
+class ParticipatedAccounting extends React.Component {
+
+  render() {
+    const inserted_at = new Date(this.props.inserted_at);
+    return (
+      <tr key={this.props.id}>
+        <td>
+          <Link to={`/accounting/${this.props.id}`}>
+            {this.props.id}
+          </Link>
+        </td>
+        <td>{this.props.accounting_users.map(e => e.user.email).join(', ')}</td>
+        <td>{this.props.transactions.length}</td>
+        <td>{inserted_at.toLocaleString()}</td>
+      </tr>
     );
   }
 }
@@ -31,7 +51,7 @@ class AccountingCard extends React.Component {
 
 class HomeIndexView extends React.Component {
   componentDidMount() {
-    setDocumentTitle('Home');
+    setDocumentTitle('Аккаунты');
   }
 
   // componentWillUnmount() {
@@ -39,117 +59,96 @@ class HomeIndexView extends React.Component {
   // }
 
   _renderOwnedAccounting() {
-    const { fetching, ownedAccounting, participatedAccounting } = this.props;
-
+    const { fetching, ownedAccounting } = this.props;
     let content = false;
 
     const iconClasses = classnames({
       fa: true,
-      'fa-user': !fetching,
+      '': !fetching,
       'fa-spinner': fetching,
       'fa-spin':    fetching,
     });
 
     if (!fetching) {
       content = (
-        <div className="boards-wrapper">
-          <ul>
+        <Col md={4}>
+          <Table striped bordered condensed hover>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Количество операций</th>
+                <th>Создан</th>
+              </tr>
+            </thead>
+            <tbody>
             {
               ownedAccounting.map((accounting) => {
-                return <AccountingCard key={accounting.id} dispatch={this.props.dispatch} {...accounting} />;
+                return <OwnedAccounting key={accounting.id} dispatch={this.props.dispatch} {...accounting} />;
               })
             }
-          </ul>
-          <br/>
-          <h3>Приглашения:</h3>
-          <ul>
-            {
-              participatedAccounting.map((accounting) => {
-                return <AccountingCard key={accounting.id} dispatch={this.props.dispatch} {...accounting} />;
-              })
-            }
-          </ul>
-        </div>
+            </tbody>
+          </Table>
+        </Col>
       );
     }
 
     return (
-      <section>
+      <Row>
         <header className="view-header">
-          <p>fetching: {fetching ? 'Yes' : 'No'}</p>
-          <h3><i className={iconClasses} /> Мои аккаунты:</h3>
+          <h3><i className={iconClasses}/>Мои аккаунты:</h3>
         </header>
         {content}
-      </section>
+      </Row>
     );
   }
 
-  // _renderBoards(boards) {
-  //   return boards.map((board) => {
-  //     return <BoardCard
-  //               key={board.id}
-  //               dispatch={this.props.dispatch}
-  //               {...board} />;
-  //   });
-  // }
+  _renderParticipatedAccounting() {
+    const { participatedAccounting } = this.props;
+    let content = false;
 
-  // _renderAddNewBoard() {
-  //   let { showForm, dispatch, formErrors } = this.props;
+    if (participatedAccounting) {
+      content = (
 
-  //   if (!showForm) return this._renderAddButton();
+        <Col md={6}>
+          <Table striped bordered condensed hover>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Участники</th>
+                <th>Количество операций</th>
+                <th>Создан</th>
+              </tr>
+            </thead>
+            <tbody>
+            {
+              participatedAccounting.map((accounting) => {
+                return <ParticipatedAccounting key={accounting.id} dispatch={this.props.dispatch} {...accounting} />;
+              })
+            }
+            </tbody>
+          </Table>
+        </Col>
+      );
+    }
 
-  //   return (
-  //     <BoardForm
-  //       dispatch={dispatch}
-  //       errors={formErrors}
-  //       onCancelClick={::this._handleCancelClick}/>
-  //   );
-  // }
+    return (
+      <Row>
+        <header className="view-header">
+          <h3>Приглашения:</h3>
+        </header>
+        {content}
+      </Row>
+    );
+  }
 
-  // _renderOtherAccounting() {
-  //   const { invitedBoards } = this.props;
-
-  //   if (invitedBoards.length === 0) return false;
-
-  //   return (
-  //     <section>
-  //       <header className="view-header">
-  //         <h3><i className="fa fa-users" /> Other boards</h3>
-  //       </header>
-  //       <div className="boards-wrapper">
-  //         {::this._renderBoards(invitedBoards)}
-  //       </div>
-  //     </section>
-  //   );
-  // }
-
-  // _renderAddButton() {
-  //   return (
-  //     <div className="board add-new" onClick={::this._handleAddNewClick}>
-  //       <div className="inner">
-  //         <a id="add_new_board">Add new board...</a>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
-  // _handleAddNewClick() {
-  //   let { dispatch } = this.props;
-
-  //   dispatch(Actions.showForm(true));
-  // }
-
-  // _handleCancelClick() {
-  //   this.props.dispatch(Actions.showForm(false));
-  // }
 
   render() {
     return (
-      <div className="view-container boards index">
+      <Grid fluid>
         {::this._renderOwnedAccounting()}
-        {/*::this._renderOtherAccounting()*/}
-        <a href="#" onClick={::this._handleSignOutClick}><i className="fa fa-sign-out"/> Sign out</a>
-      </div>
+        {::this._renderParticipatedAccounting()}
+        {/*<a href="#" onClick={::this._handleSignOutClick}><i className="fa fa-sign-out"/> Sign out</a>*/}
+      </Grid>
     );
   }
 
