@@ -5,12 +5,14 @@ defmodule Hb.Mixfile do
     [app: :hb,
      version: "0.0.1",
      elixir: "~> 1.2",
+     description: "Hb release deb",
      elixirc_paths: elixirc_paths(Mix.env),
      compilers: [:phoenix, :gettext] ++ Mix.compilers,
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      aliases: aliases(),
-     deps: deps()]
+     deps: deps,
+     package: package]
   end
 
   # Configuration for the OTP application.
@@ -19,7 +21,8 @@ defmodule Hb.Mixfile do
   def application do
     [mod: {Hb, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :comeonin, :httpoison, :cachex, :arbor, :nimble_csv, :filterable]]
+                    :phoenix_ecto, :postgrex, :comeonin, :httpoison, :cachex, :arbor,
+                    :nimble_csv, :filterable, :money, :ecto_enum, :guardian, :exrm_deb, :elixir_make]]
   end
 
   # Specifies which paths to compile per environment.
@@ -48,7 +51,33 @@ defmodule Hb.Mixfile do
      {:arbor, "~> 1.0.3"},
      {:nimble_csv, "~> 0.1.0"},
      {:filterable, "~> 0.5.2"},
-     {:exrm, "~> 1.0"}]
+     {:exrm, "~> 1.0"},
+     {:distillery, "~> 1.4"},
+     {:exrm_deb, github: "johnhamelink/exrm_deb", branch: "feature/distillery-support"}]
+  end
+
+  def package do
+    [
+      maintainer_scripts: [],
+      external_dependencies: [],
+      license_file: "LICENSE",
+      files: [ "lib", "priv", "mix.exs", "README*", "LICENSE"],
+      maintainers: ["Aleksey Alekhine <lexa62@tut.by>"],
+      licenses: ["MIT"],
+      vendor: "Aleksey Alekhine",
+      config_files: [],
+      links:  %{
+        "GitHub" => "https://gitlab.com/lexa62/hb",
+        "Docs" => "https://hexdocs.pm/exrm_deb",
+        "Homepage" => "https://gitlab.com/lexa62/hb"
+      }
+    ]
+  end
+
+  def lsb_release do
+    {release, _} = System.cmd("lsb_release", ["-c", "-s"])
+    String.replace(release, "\n", "")
+    "jessie"
   end
 
   # Aliases are shortcuts or tasks specific to the current project.

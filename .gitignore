@@ -18,3 +18,5 @@ erl_crash.dump
 # variables.
 /config/prod.secret.exs
 *.csv
+rel/*.deb
+rel/hb/

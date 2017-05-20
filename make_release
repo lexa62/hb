@@ -1,0 +1,5 @@
+#!/bin/bash
+MIX_ENV=prod mix do deps.get, compile
+MIX_ENV=prod webpack
+MIX_ENV=prod mix phoenix.digest
+MIX_ENV=prod mix release
