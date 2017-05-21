@@ -11,6 +11,9 @@ const initialState = {
 
 export default function reducer(state = initialState, action = {}) {
   let old_financial_goals = null;
+  let old_accounts = null;
+  let old_currencies = null;
+
   switch (action.type) {
     case Constants.CURRENT_ACCOUNTING_FETCHING:
       return { ...state, fetching: true };
@@ -77,8 +80,71 @@ export default function reducer(state = initialState, action = {}) {
 
 
 
+    case Constants.CURRENT_ACCOUNTING_EDIT_ACCOUNT:
+      return { ...state, editingAccountId: action.id };
+
+    case Constants.CURRENT_ACCOUNTING_ACCOUNT_CREATED:
+      old_accounts = state.accounts;
+      if (old_accounts) {
+        const new_accounts = update(old_accounts, {$push: [action.account]})
+        return { ...state, accounts: new_accounts };
+      } else return state;
+
+    case Constants.CURRENT_ACCOUNTING_ACCOUNT_UPDATED:
+      old_accounts = state.accounts;
+      if (old_accounts) {
+        const account_index = old_accounts.findIndex((goal) => { return goal.id == action.account.id; });
+        const new_accounts = update(old_accounts, {[account_index]: {$set: action.account}})
+        return { ...state, accounts: new_accounts, editingAccountId: null };
+      } else return { ...state, editingAccountId: null };
+
+    case Constants.CURRENT_ACCOUNTING_ACCOUNT_REMOVED:
+      old_accounts = state.accounts;
+      if (old_accounts) {
+        const account_index = old_accounts.findIndex((goal) => { return goal.id == action.id; });
+        const new_accounts = update(old_accounts, {$splice: [[account_index, 1]]});
+        return { ...state, accounts: new_accounts };
+      } else return state;
+
+
+
+    case Constants.CURRENT_ACCOUNTING_EDIT_CURRENCY:
+      return { ...state, editingCurrencyId: action.id };
+
+    case Constants.CURRENT_ACCOUNTING_CURRENCY_CREATED:
+      old_currencies = state.currencies;
+      if (old_currencies) {
+        const new_currencies = update(old_currencies, {$push: [action.currency]})
+        return { ...state, currencies: new_currencies };
+      } else return state;
+
+    case Constants.CURRENT_ACCOUNTING_CURRENCY_UPDATED:
+      old_currencies = state.currencies;
+      if (old_currencies) {
+        const currency_index = old_currencies.findIndex((goal) => { return goal.id == action.currency.id; });
+        const new_currencies = update(old_currencies, {[currency_index]: {$set: action.currency}})
+        return { ...state, currencies: new_currencies, editingCurrencyId: null };
+      } else return { ...state, editingCurrencyId: null };
+
+    case Constants.CURRENT_ACCOUNTING_CURRENCY_REMOVED:
+      old_currencies = state.currencies;
+      if (old_currencies) {
+        const currency_index = old_currencies.findIndex((goal) => { return goal.id == action.id; });
+        const new_currencies = update(old_currencies, {$splice: [[currency_index, 1]]});
+        return { ...state, currencies: new_currencies };
+      } else return state;
+
+
+
     case Constants.CURRENT_ACCOUNTING_MEMBER_ADDED:
-      return { ...state, error: null };
+      let old_members = state.accounting_users;
+      if (old_members) {
+        const new_members = update(old_members, {$push: [action.user]})
+        return { ...state, accounting_users: new_members, error: null };
+      } else return { ...state, error: null };
+
+    case Constants.CURRENT_ACCOUNTING_IMPORT_COMPLETED:
+      return { ...state, imported_count: action.imported_count };
 
     case Constants.CURRENT_ACCOUNTING_ADD_MEMBER_ERROR:
       return { ...state, error: action.error };

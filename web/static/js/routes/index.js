@@ -7,7 +7,14 @@ import RegistrationsNew             from '../views/registrations/new';
 import SessionsNew                  from '../views/sessions/new';
 import AccountingShowView               from '../views/accounting/show';
 import AccountingTransactionsView   from '../views/accounting/transactions';
-import AccountingSettingsView       from '../views/accounting/settings';
+
+import AccountingParticipantsView       from '../views/accounting/participants';
+import AccountingExportImportView       from '../views/accounting/export_import';
+import AccountingAccountsView       from '../views/accounting/accounts';
+import AccountingCurrenciesView     from '../views/accounting/currencies';
+import AccountingExpenseCategoriesView     from '../views/accounting/expense_categories';
+import AccountingIncomeCategoriesView     from '../views/accounting/income_categories';
+
 import AccountingFinancialGoalsView from '../views/accounting/financial_goals';
 import AccountingReportsView from '../views/accounting/reports';
 // import CardsShowView                from '../views/cards/show';
@@ -40,7 +47,13 @@ export default function configRoutes(store) {
           <IndexRoute component={AccountingTransactionsView} />
           <Route path="financial_goals" component={AccountingFinancialGoalsView} />
           <Route path="reports" component={AccountingReportsView} />
-          <Route path="settings" component={AccountingSettingsView} />
+
+          <Route path="expense_categories" component={AccountingExpenseCategoriesView} />
+          <Route path="income_categories" component={AccountingIncomeCategoriesView} />
+          <Route path="participants" component={AccountingParticipantsView} />
+          <Route path="export_import" component={AccountingExportImportView} />
+          <Route path="accounts" component={AccountingAccountsView} />
+          <Route path="currencies" component={AccountingCurrenciesView} />
         </Route>
       </Route>
     </Route>

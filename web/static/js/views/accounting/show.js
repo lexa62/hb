@@ -6,6 +6,7 @@ import { connect }          from 'react-redux';
 import Actions              from '../../actions/current_accounting';
 import Constants            from '../../constants';
 import { setDocumentTitle } from '../../utils';
+import classnames           from 'classnames';
 // import Select2 from 'react-select2-wrapper';
 // import ListForm             from '../../components/lists/form';
 // import BoardMembers           from '../../components/boards/members';
@@ -51,6 +52,13 @@ class AccountingShowView extends React.Component {
     // const { currentAccounting, dispatch } = this.props;
     const { fetching } = this.props.currentAccounting;
     let content = null;
+    const iconClasses = classnames({
+      fa: true,
+      '': !fetching,
+      'fa-spinner': fetching,
+      'fa-spin':    fetching,
+    });
+
     if (!fetching) {
       content = (
         <div>
@@ -82,8 +90,7 @@ class AccountingShowView extends React.Component {
 
     return (
       <div>
-        <h2>Accounting page</h2>
-        <p>fetching: {fetching ? 'Y' : 'N'}</p>
+        <i className={iconClasses}/>
         {content}
       </div>
     );

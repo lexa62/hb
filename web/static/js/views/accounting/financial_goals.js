@@ -1,17 +1,10 @@
 import React, {PropTypes}   from 'react';
 import { connect }          from 'react-redux';
-// import {DragDropContext}    from 'react-dnd';
-// import HTML5Backend         from 'react-dnd-html5-backend';
-
 import Actions              from '../../actions/current_accounting';
 import Constants            from '../../constants';
 import { setDocumentTitle } from '../../utils';
-// import Select2 from 'react-select2-wrapper';
-// import ListForm             from '../../components/lists/form';
-// import BoardMembers           from '../../components/boards/members';
-
-// @DragDropContext(HTML5Backend)
-import { Grid, Row, Col, Panel, ListGroup, ListGroupItem, ProgressBar, Form, FormGroup, ControlLabel, FormControl, Button } from 'react-bootstrap';
+import { Grid, Row, Col, Panel, ListGroup, ListGroupItem, ProgressBar, Form, FormGroup,
+        ControlLabel, FormControl, Button } from 'react-bootstrap';
 
 class FinancialGoalForm extends React.Component {
   constructor(props) {

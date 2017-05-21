@@ -3,7 +3,7 @@ defmodule Hb.AccountingUser do
 
   alias Hb.{Accounting, User}
 
-  @derive {Poison.Encoder, only: [:id, :user]}
+  @derive {Poison.Encoder, only: [:id, :user, :inserted_at]}
 
   schema "accounting_users" do
     belongs_to :accounting, Accounting
@@ -19,5 +19,9 @@ defmodule Hb.AccountingUser do
     struct
     |> cast(params, [:accounting_id, :user_id])
     |> validate_required([:accounting_id, :user_id])
+  end
+
+  def preload_all(query) do
+    from f in query, preload: [:user]
   end
 end

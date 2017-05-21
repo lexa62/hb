@@ -16,30 +16,30 @@ import { Chart } from 'react-google-charts';
 import { FormGroup, FormControl, ControlLabel, Button } from 'react-bootstrap';
 
 class AccountingReportsView extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      options: {
-        title: 'Age vs. Weight comparison',
-        legend: 'none',
-      },
-      rows: [
-        ["Еда", 12],
-        ["Транспорт", 5.5],
-        ["Интернет", 7],
-      ],
-      columns: [
-        {
-          type: 'string',
-          label: 'Категория',
-        },
-        {
-          type: 'number',
-          label: 'Затраты',
-        },
-      ],
-    };
-  }
+  // constructor(props) {
+  //   super(props);
+  //   this.state = {
+  //     options: {
+  //       title: 'Age vs. Weight comparison',
+  //       legend: 'none',
+  //     },
+  //     rows: [
+  //       ["Еда", 12],
+  //       ["Транспорт", 5.5],
+  //       ["Интернет", 7],
+  //     ],
+  //     columns: [
+  //       {
+  //         type: 'string',
+  //         label: 'Категория',
+  //       },
+  //       {
+  //         type: 'number',
+  //         label: 'Затраты',
+  //       },
+  //     ],
+  //   };
+  // }
   componentDidMount() {
     // const { socket } = this.props;
 
@@ -100,7 +100,7 @@ class AccountingReportsView extends React.Component {
             Сформировать отчёт
           </Button>
         </form>
-        <Chart
+        {/*<Chart
           chartType="PieChart"
           rows={this.state.rows}
           columns={this.state.columns}
@@ -109,7 +109,7 @@ class AccountingReportsView extends React.Component {
           width={'100%'}
           height={'400px'}
           legend_toggle
-        />
+        />*/}
       </div>
     );
   }

@@ -97,6 +97,51 @@ const Actions = {
 
 
 
+      channel.on('account:updated', (msg) => {
+        dispatch({
+          type: Constants.CURRENT_ACCOUNTING_ACCOUNT_UPDATED,
+          account: msg.account,
+        });
+      });
+
+      channel.on('account:created', (msg) => {
+        dispatch({
+          type: Constants.CURRENT_ACCOUNTING_ACCOUNT_CREATED,
+          account: msg.account,
+        });
+      });
+
+      channel.on('account:removed', (msg) => {
+        dispatch({
+          type: Constants.CURRENT_ACCOUNTING_ACCOUNT_REMOVED,
+          id: msg.account_id,
+        });
+      });
+
+
+
+      channel.on('currency:updated', (msg) => {
+        dispatch({
+          type: Constants.CURRENT_ACCOUNTING_CURRENCY_UPDATED,
+          currency: msg.currency,
+        });
+      });
+
+      channel.on('currency:created', (msg) => {
+        dispatch({
+          type: Constants.CURRENT_ACCOUNTING_CURRENCY_CREATED,
+          currency: msg.currency,
+        });
+      });
+
+      channel.on('currency:removed', (msg) => {
+        dispatch({
+          type: Constants.CURRENT_ACCOUNTING_CURRENCY_REMOVED,
+          id: msg.currency_id,
+        });
+      });
+
+
       dispatch({
         type: Constants.CURRENT_ACCOUNTING_CONNECTED_TO_CHANNEL,
         channel: channel,
@@ -129,11 +174,15 @@ const Actions = {
   },
 
   importTransactions: (accounting_id, data) => {
-    console.log(data);
-    httpPostFile(`/api/v1/accounting/${accounting_id}/transactions/import`, data)
-    .then((data) => {
-      console.log(data);
-    });
+    return dispatch => {
+      httpPostFile(`/api/v1/accounting/${accounting_id}/transactions/import`, data)
+      .then((data) => {
+        dispatch({
+          type: Constants.CURRENT_ACCOUNTING_IMPORT_COMPLETED,
+          imported_count: data.result,
+        });
+      });
+    }
   },
 
   addNewMember: (channel, email) => {
@@ -212,6 +261,67 @@ const Actions = {
       });
     };
   },
+
+
+
+  editAccount: (id) => {
+    return dispatch => {
+      dispatch({
+        type: Constants.CURRENT_ACCOUNTING_EDIT_ACCOUNT,
+        id: id,
+      });
+    };
+  },
+
+  addAccount: (channel, account) => {
+    return dispatch => {
+      channel.push('account:add', { account: account });
+    };
+  },
+
+
+  updateAccount: (channel, account) => {
+    return dispatch => {
+      channel.push('account:update', { account: account });
+    };
+  },
+
+  removeAccount: (channel, id) => {
+    return dispatch => {
+      channel.push('account:remove', { account_id: id });
+    };
+  },
+
+
+
+  editCurrency: (id) => {
+    return dispatch => {
+      dispatch({
+        type: Constants.CURRENT_ACCOUNTING_EDIT_CURRENCY,
+        id: id,
+      });
+    };
+  },
+
+  addCurrency: (channel, currency) => {
+    return dispatch => {
+      channel.push('currency:add', { currency: currency });
+    };
+  },
+
+
+  updateCurrency: (channel, currency) => {
+    return dispatch => {
+      channel.push('currency:update', { currency: currency });
+    };
+  },
+
+  removeCurrency: (channel, id) => {
+    return dispatch => {
+      channel.push('currency:remove', { currency_id: id });
+    };
+  },
+
 
   // updateCard: (channel, card) => {
   //   return dispatch => {

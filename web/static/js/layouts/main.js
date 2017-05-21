@@ -36,12 +36,24 @@ class MainLayout extends React.Component {
             <NavItem eventKey={5}>Настройки</NavItem>
           </LinkContainer>*/}
           <NavDropdown eventKey={6} title="Настройки" id="basic-nav-dropdown">
-            <MenuItem eventKey={6.1}>Категории затрат</MenuItem>
-            <MenuItem eventKey={6.2}>Источники доходов</MenuItem>
-            <MenuItem eventKey={6.3}>Счета</MenuItem>
-            <MenuItem eventKey={6.4}>Валюты</MenuItem>
-            <MenuItem eventKey={6.5}>Экспорт/импорт</MenuItem>
-            <MenuItem eventKey={6.6}>Участники</MenuItem>
+            <LinkContainer to={`/accounting/${currentAccounting.id}/expense_categories`}>
+              <MenuItem eventKey={6.1}>Категории затрат</MenuItem>
+            </LinkContainer>
+            <LinkContainer to={`/accounting/${currentAccounting.id}/income_categories`}>
+              <MenuItem eventKey={6.2}>Источники доходов</MenuItem>
+            </LinkContainer>
+            <LinkContainer to={`/accounting/${currentAccounting.id}/accounts`}>
+              <MenuItem eventKey={6.3}>Счета</MenuItem>
+            </LinkContainer>
+            <LinkContainer to={`/accounting/${currentAccounting.id}/currencies`}>
+              <MenuItem eventKey={6.4}>Валюты</MenuItem>
+            </LinkContainer>
+            <LinkContainer to={`/accounting/${currentAccounting.id}/export_import`}>
+              <MenuItem eventKey={6.5}>Экспорт/импорт</MenuItem>
+            </LinkContainer>
+            <LinkContainer to={`/accounting/${currentAccounting.id}/participants`}>
+              <MenuItem eventKey={6.6}>Участники</MenuItem>
+            </LinkContainer>
           </NavDropdown>
         </Nav>
       );

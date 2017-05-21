@@ -54,9 +54,6 @@ export function httpPost(url, data) {
 }
 
 export function httpPostFile(url, data) {
-
-  debugger;
-
   return fetch(url, {
     method: 'post',
     headers: buildAuthorizationHeader(),

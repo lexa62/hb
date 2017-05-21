@@ -1,7 +1,7 @@
 defmodule Hb.Currency do
   use Hb.Web, :model
 
-  @derive {Poison.Encoder, only: [:id, :name, :iso_code, :is_default]}
+  @derive {Poison.Encoder, only: [:id, :name, :iso_code, :is_default, :manual_rate]}
 
   schema "currencies" do
     field :name, :string

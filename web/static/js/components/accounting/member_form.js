@@ -1,18 +1,19 @@
 import React       from 'react';
 import Actions     from '../../actions/current_accounting';
+import { Form, FormGroup, FormControl, Button, ControlLabel, HelpBlock } from 'react-bootstrap';
 
 export default class MemberForm extends React.Component {
-  _renderError() {
-    const { error } = this.props;
+  // _renderError() {
+  //   const { error } = this.props;
 
-    if (!error) return false;
+  //   if (!error) return false;
 
-    return (
-      <div className="error">
-        {error}
-      </div>
-    );
-  }
+  //   return (
+  //     <div className="error">
+  //       {error}
+  //     </div>
+  //   );
+  // }
 
   _handleSubmit(e) {
     e.preventDefault();
@@ -25,13 +26,22 @@ export default class MemberForm extends React.Component {
   }
 
   render() {
+    const { error } = this.props;
     return (
-      <form onSubmit={::this._handleSubmit}>
-        <h4>Добавление участника</h4>
-        {::this._renderError()}
-        <input ref={(input) => this.email = input} type="email" required={true} placeholder="Email участника"/>
-        <button type="submit">Добавить</button>
-      </form>
+      <Form inline onSubmit={::this._handleSubmit}>
+        {
+          error && <HelpBlock>{error}</HelpBlock>
+        }
+        <FormGroup>
+          <ControlLabel>Email участника</ControlLabel>
+          {' '}
+          <FormControl inputRef={(input) => this.email = input} placeholder="demo@example.com" required={true} type="email" size="20" name="email" />
+        </FormGroup>
+        {' '}
+        <Button type="submit" bsStyle="primary">
+          Добавить
+        </Button>
+      </Form>
     );
   }
 }

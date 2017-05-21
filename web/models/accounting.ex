@@ -34,7 +34,7 @@ defmodule Hb.Accounting do
   def preload_all(query) do
     transactions_query = from t in Transaction, order_by: [desc: t.inserted_at], preload: :currency
     currencies_query = from cur in Currency
-    accounts_query = from a in Account, preload: [currency_balances: :currency]
+    accounts_query = from a in Account, order_by: [asc: a.inserted_at], preload: [currency_balances: :currency]
     categories_query = from cat in Category
     accounting_users_query = from a_u in AccountingUser, preload: :user
 
