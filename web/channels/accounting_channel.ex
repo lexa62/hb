@@ -2,7 +2,8 @@ defmodule Hb.AccountingChannel do
   require IEx
   use Hb.Web, :channel
 
-  alias Hb.{Repo, User, Accounting, Transaction, AccountingUser, CurrencyBalance, Account, FinancialGoal, Account, Currency}
+  alias Hb.{Repo, User, Accounting, Transaction, AccountingUser, CurrencyBalance,
+            Account, FinancialGoal, Account, Currency, Category}
 
   def join("accounting:" <> accounting_id, _params, socket) do
     # current_user = socket.assigns.current_user
@@ -342,6 +343,104 @@ defmodule Hb.AccountingChannel do
         {:reply, {:error, %{error: "Error removing currency: transactions exists"}}, socket}
     end
   end
+
+
+
+  def handle_in("category:add", %{"category" => category_params}, socket) do
+    current_user = socket.assigns.current_user
+    accounting = socket.assigns.accounting
+
+    category = accounting
+      |> build_assoc(:categories)
+
+    changeset = Category.changeset(category, category_params)
+
+    case Repo.insert(changeset) do
+      {:ok, category_schema} ->
+        categories = accounting
+          |> assoc(:categories)
+          |> Repo.all
+
+        category = categories
+        |> Enum.find(fn c -> c.id == category_schema.id end)
+
+        categories_tree = Accounting.get_categories_tree(categories)
+
+        broadcast! socket, "category:created", %{category: category, categories_tree: categories_tree}
+        {:noreply, socket}
+      {:error, _changeset} ->
+        {:reply, {:error, %{error: "Error creating category"}}, socket}
+    end
+  end
+
+  def handle_in("category:update", %{"category" => category_params}, socket) do
+    category = socket.assigns.accounting
+      |> assoc(:categories)
+      |> Repo.get!(category_params["id"])
+
+    accounting = socket.assigns.accounting
+
+    changeset = Category.changeset(category, category_params)
+
+    case Repo.update(changeset) do
+      {:ok, category_schema} ->
+        categories = accounting
+          |> assoc(:categories)
+          |> Repo.all
+
+        category = categories
+        |> Enum.find(fn c -> c.id == category_schema.id end)
+
+        categories_tree = Accounting.get_categories_tree(categories)
+
+        broadcast! socket, "category:updated", %{category: category, categories_tree: categories_tree}
+        {:noreply, socket}
+      {:error, _changeset} ->
+        {:reply, {:error, %{error: "Error updating category"}}, socket}
+    end
+  end
+
+  def handle_in("category:remove", %{"category_id" => category_id}, socket) do
+    category = socket.assigns.accounting
+      |> assoc(:categories)
+      |> Repo.get!(category_id)
+
+    accounting = socket.assigns.accounting
+
+    ids = category
+      |> Category.descendants |> Repo.all |> Enum.map(&(&1.id))
+
+    ids_and_self = ids ++ [category.id]
+
+    transaction_count =
+      from(t in Transaction, where: t.category_id in ^(ids_and_self))
+      |> Repo.aggregate(:count, :id)
+
+    case transaction_count do
+      0 ->
+        case Repo.delete(category) do
+          {:ok, category_schema} ->
+            categories = accounting
+              |> assoc(:categories)
+              |> Repo.all
+
+            # category = categories
+            # |> Enum.find(fn c -> c.id == category_schema.id end)
+
+            categories_tree = Accounting.get_categories_tree(categories)
+
+            broadcast! socket, "category:removed", %{category_id: category_schema.id, categories_tree: categories_tree}
+            {:noreply, socket}
+          {:error, _changeset} ->
+            {:reply, {:error, %{error: "Error removing category"}}, socket}
+        end
+      _ ->
+        {:reply, {:error, %{error: "Error removing category: transactions exists"}}, socket}
+    end
+  end
+
+
+
 
 
   # def handle_in("list:update", %{"list" => list_params}, socket) do

@@ -6,13 +6,15 @@ const initialState = {
   error: null,
   fetching: true,
   fetching_financial_goals: true,
-  report_transactions: []
+  report_transactions: [],
+  editingCategoryType: Constants.EXPENSE
 };
 
 export default function reducer(state = initialState, action = {}) {
   let old_financial_goals = null;
   let old_accounts = null;
   let old_currencies = null;
+  let old_categories = null;
 
   switch (action.type) {
     case Constants.CURRENT_ACCOUNTING_FETCHING:
@@ -133,6 +135,39 @@ export default function reducer(state = initialState, action = {}) {
         const new_currencies = update(old_currencies, {$splice: [[currency_index, 1]]});
         return { ...state, currencies: new_currencies };
       } else return state;
+
+
+
+
+    case Constants.CURRENT_ACCOUNTING_EDIT_CATEGORY:
+      return { ...state, editingCategoryId: action.id };
+
+    case Constants.CURRENT_ACCOUNTING_CATEGORY_CREATED:
+      old_categories = state.categories;
+      if (old_categories) {
+        const new_categories = update(old_categories, {$push: [action.category]})
+        return { ...state, categories: new_categories, categories_tree: action.categories_tree };
+      } else return state;
+
+    case Constants.CURRENT_ACCOUNTING_CATEGORY_UPDATED:
+      old_categories = state.categories;
+      if (old_categories) {
+        const category_index = old_categories.findIndex((goal) => { return goal.id == action.category.id; });
+        const new_categories = update(old_categories, {[category_index]: {$set: action.category}})
+        return { ...state, categories: new_categories, editingCategoryId: null, editingCategoryType: action.category.type, categories_tree: action.categories_tree };
+      } else return { ...state, editingCategoryId: null, editingCategoryType: action.category.type };
+
+    case Constants.CURRENT_ACCOUNTING_CATEGORY_REMOVED:
+      old_categories = state.categories;
+      if (old_categories) {
+        const category_index = old_categories.findIndex((goal) => { return goal.id == action.id; });
+        const new_categories = update(old_categories, {$splice: [[category_index, 1]]});
+        return { ...state, categories: new_categories, categories_tree: action.categories_tree };
+      } else return state;
+
+    case Constants.CURRENT_ACCOUNTING_CHANGE_CATEGORY_TYPE:
+      return { ...state, editingCategoryType: action.category_type };
+
 
 
 

@@ -142,6 +142,34 @@ const Actions = {
       });
 
 
+
+
+      channel.on('category:updated', (msg) => {
+        dispatch({
+          type: Constants.CURRENT_ACCOUNTING_CATEGORY_UPDATED,
+          category: msg.category,
+          categories_tree: msg.categories_tree,
+        });
+      });
+
+      channel.on('category:created', (msg) => {
+        dispatch({
+          type: Constants.CURRENT_ACCOUNTING_CATEGORY_CREATED,
+          category: msg.category,
+          categories_tree: msg.categories_tree,
+        });
+      });
+
+      channel.on('category:removed', (msg) => {
+        dispatch({
+          type: Constants.CURRENT_ACCOUNTING_CATEGORY_REMOVED,
+          id: msg.category_id,
+          categories_tree: msg.categories_tree,
+        });
+      });
+
+
+
       dispatch({
         type: Constants.CURRENT_ACCOUNTING_CONNECTED_TO_CHANNEL,
         channel: channel,
@@ -319,6 +347,45 @@ const Actions = {
   removeCurrency: (channel, id) => {
     return dispatch => {
       channel.push('currency:remove', { currency_id: id });
+    };
+  },
+
+
+
+  editCategory: (id) => {
+    return dispatch => {
+      dispatch({
+        type: Constants.CURRENT_ACCOUNTING_EDIT_CATEGORY,
+        id: id,
+      });
+    };
+  },
+
+  changeCategoryType: (category_type) => {
+    return dispatch => {
+      dispatch({
+        type: Constants.CURRENT_ACCOUNTING_CHANGE_CATEGORY_TYPE,
+        category_type: category_type,
+      });
+    };
+  },
+
+  addCategory: (channel, category) => {
+    return dispatch => {
+      channel.push('category:add', { category: category });
+    };
+  },
+
+
+  updateCategory: (channel, category) => {
+    return dispatch => {
+      channel.push('category:update', { category: category });
+    };
+  },
+
+  removeCategory: (channel, id) => {
+    return dispatch => {
+      channel.push('category:remove', { category_id: id });
     };
   },
 

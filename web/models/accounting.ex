@@ -4,7 +4,7 @@ defmodule Hb.Accounting do
   alias __MODULE__
   alias Hb.{User, Transaction, Currency, Account, Category, FinancialGoal, AccountingUser}
 
-  @derive {Poison.Encoder, only: [:id, :transactions, :currencies, :accounts, :categories, :inserted_at, :accounting_users]}
+  # @derive {Poison.Encoder, only: [:id, :transactions, :currencies, :accounts, :categories, :inserted_at, :accounting_users]}
 
   schema "accounting" do
     belongs_to :user, User, foreign_key: :owner_id
@@ -43,5 +43,43 @@ defmodule Hb.Accounting do
                                accounts: ^accounts_query,
                                categories: ^categories_query,
                                accounting_users: ^accounting_users_query]
+  end
+
+  def get_categories_tree(categories) do
+    category_tree = %{}
+    roots = categories |> Enum.filter(&(&1.parent_id == nil))
+
+    category_tree = roots
+      |> Enum.reduce(category_tree, fn(t, acc) ->
+        acc = Map.put(acc, Integer.to_string(t.id), %{node: t})
+      end)
+
+    add_to = fn(parent, tree, keys, fun) ->
+      categories
+        |> Enum.filter(&(&1.parent_id == parent.id))
+        |> Enum.reduce(tree, fn(c, acc) ->
+          keys = keys ++ [Integer.to_string(c.id)]
+          acc = Map.merge(acc, fun.(c, acc, keys, fun))
+          res = Service.MiscScripts.initialized_map(acc, keys)
+          put_in(res, keys ++ [:node], c)
+        end)
+    end
+
+    category_tree = roots
+      |> Enum.reduce(category_tree, fn(r, acc) ->
+        res_map = add_to.(r, acc, [Integer.to_string(r.id)], add_to)
+        acc = Map.merge(acc, res_map)
+        acc
+      end)
+  end
+
+
+  defimpl Poison.Encoder, for: Hb.Accounting do
+    def encode(model, options) do
+      model
+      |> Map.take([:id, :transactions, :currencies, :accounts, :categories, :inserted_at, :accounting_users])
+      |> Map.put(:categories_tree, Hb.Accounting.get_categories_tree(model.categories))
+      |> Poison.Encoder.encode(options)
+    end
   end
 end
