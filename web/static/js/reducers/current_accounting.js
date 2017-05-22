@@ -15,6 +15,8 @@ export default function reducer(state = initialState, action = {}) {
   let old_accounts = null;
   let old_currencies = null;
   let old_categories = null;
+  let old_transactions = null;
+  let newArray = [];
 
   switch (action.type) {
     case Constants.CURRENT_ACCOUNTING_FETCHING:
@@ -27,22 +29,62 @@ export default function reducer(state = initialState, action = {}) {
       return { ...state, channel: action.channel };
 
     case Constants.CURRENT_ACCOUNTING_TRANSACTION_CREATED:
-      const accounts = state.accounts;
-      const accountIndex = accounts.findIndex((account) => { return account.id == action.currency_balance.account_id; });
-      const currencyBalanceIndex = accounts[accountIndex].currency_balances.findIndex((currencyBalance) => { return currencyBalance.id == action.currency_balance.id; });
-      let newArray = []
-      if(currencyBalanceIndex != -1) {
-        newArray = update(accounts, {[accountIndex]: {currency_balances: {[currencyBalanceIndex]: {$set: action.currency_balance}}}});
-      }
-      else {
-        newArray = update(accounts, {[accountIndex]: {currency_balances: {$push: [action.currency_balance]}}});
+      newArray = state.accounts;
+      for (let currency_balance of action.currency_balances) {
+        const accountIndex = newArray.findIndex(account => account.id == currency_balance.account_id);
+        const currencyBalanceIndex = newArray[accountIndex].currency_balances.findIndex(b => b.id == currency_balance.id);
+        if(currencyBalanceIndex != -1) {
+          newArray = update(newArray, {[accountIndex]: {currency_balances: {[currencyBalanceIndex]: {$set: currency_balance}}}});
+        }
+        else {
+          newArray = update(newArray, {[accountIndex]: {currency_balances: {$push: [currency_balance]}}});
+        }
       }
       return { ...state, transactions: [action.transaction, ...state.transactions], accounts: newArray};
-      // const accounts = state.accounts;
-      // const accountIndex = accounts.findIndex((account) => { return account.id == action.currency_balance.account_id; });
-      // const currencyBalanceIndex = accounts[accountIndex].currency_balances.findIndex((currencyBalance) => { return currencyBalance.id == action.currency_balance.id; });
-      // const newArray = update(accounts, {[accountIndex]: {currency_balances: {[currencyBalanceIndex]: {$set: action.currency_balance}}}});
-      // return { ...state, transactions: [action.transaction, ...state.transactions], accounts: newArray};
+
+    case Constants.CURRENT_ACCOUNTING_EDIT_TRANSACTION:
+      return { ...state, editingTransactionId: action.id };
+
+    case Constants.CURRENT_ACCOUNTING_TRANSACTION_UPDATED:
+      newArray = state.accounts;
+      old_transactions = state.transactions;
+      for (let currency_balance of action.currency_balances) {
+        const accountIndex = newArray.findIndex(account => account.id == currency_balance.account_id);
+        const currencyBalanceIndex = newArray[accountIndex].currency_balances.findIndex(b => b.id == currency_balance.id);
+        if(currencyBalanceIndex != -1) {
+          newArray = update(newArray, {[accountIndex]: {currency_balances: {[currencyBalanceIndex]: {$set: currency_balance}}}});
+        }
+        else {
+          newArray = update(newArray, {[accountIndex]: {currency_balances: {$push: [currency_balance]}}});
+        }
+      }
+
+      if (old_transactions) {
+        const transaction_index = old_transactions.findIndex((goal) => { return goal.id == action.transaction.id; });
+        const new_transactions = update(old_transactions, {[transaction_index]: {$set: action.transaction}})
+        return { ...state, transactions: new_transactions, editingTransactionId: null, accounts: newArray };
+      } else return { ...state, editingTransactionId: null };
+
+    case Constants.CURRENT_ACCOUNTING_TRANSACTION_REMOVED:
+      old_transactions = state.transactions;
+      newArray = state.accounts;
+      for (let currency_balance of action.currency_balances) {
+        const accountIndex = newArray.findIndex(account => account.id == currency_balance.account_id);
+        const currencyBalanceIndex = newArray[accountIndex].currency_balances.findIndex(b => b.id == currency_balance.id);
+        if(currencyBalanceIndex != -1) {
+          newArray = update(newArray, {[accountIndex]: {currency_balances: {[currencyBalanceIndex]: {$set: currency_balance}}}});
+        }
+        else {
+          newArray = update(newArray, {[accountIndex]: {currency_balances: {$push: [currency_balance]}}});
+        }
+      }
+
+      if (old_transactions) {
+        const currency_index = old_transactions.findIndex((goal) => { return goal.id == action.id; });
+        const new_transactions = update(old_transactions, {$splice: [[currency_index, 1]]});
+        return { ...state, transactions: new_transactions, accounts: newArray };
+      } else return state;
+
 
 
     case Constants.CURRENT_ACCOUNTING_FINANCIAL_GOALS_FETCHING:

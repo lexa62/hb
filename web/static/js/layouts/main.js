@@ -26,9 +26,9 @@ class MainLayout extends React.Component {
           <LinkContainer to={`/accounting/${currentAccounting.id}/financial_goals`}>
             <NavItem eventKey={2}>Накопления</NavItem>
           </LinkContainer>
-          <LinkContainer to={`/accounting/${currentAccounting.id}/budget_planning`}>
+          {/*<LinkContainer to={`/accounting/${currentAccounting.id}/budget_planning`}>
             <NavItem eventKey={3}>Планирование</NavItem>
-          </LinkContainer>
+          </LinkContainer>*/}
           <LinkContainer to={`/accounting/${currentAccounting.id}/reports`}>
             <NavItem eventKey={4}>Отчёты</NavItem>
           </LinkContainer>

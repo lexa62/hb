@@ -23,7 +23,23 @@ const Actions = {
         dispatch({
           type: Constants.CURRENT_ACCOUNTING_TRANSACTION_CREATED,
           transaction: msg.transaction,
-          currency_balance: msg.currency_balance
+          currency_balances: msg.currency_balances
+        });
+      });
+
+      channel.on('transaction:updated', (msg) => {
+        dispatch({
+          type: Constants.CURRENT_ACCOUNTING_TRANSACTION_UPDATED,
+          transaction: msg.transaction,
+          currency_balances: msg.currency_balances
+        });
+      });
+
+      channel.on('transaction:removed', (msg) => {
+        dispatch({
+          type: Constants.CURRENT_ACCOUNTING_TRANSACTION_REMOVED,
+          id: msg.transaction_id,
+          currency_balances: msg.currency_balances
         });
       });
 
@@ -192,6 +208,28 @@ const Actions = {
       channel.push('transactions:create', { transaction: data });
     };
   },
+
+  editTransaction: (id) => {
+    return dispatch => {
+      dispatch({
+        type: Constants.CURRENT_ACCOUNTING_EDIT_TRANSACTION,
+        id: id,
+      });
+    };
+  },
+
+  updateTransaction: (channel, transaction) => {
+    return dispatch => {
+      channel.push('transaction:update', { transaction: transaction });
+    };
+  },
+
+  removeTransaction: (channel, id) => {
+    return dispatch => {
+      channel.push('transaction:remove', { transaction_id: id });
+    };
+  },
+
 
 
   exportTransactions: (accounting_id) => {

@@ -31,10 +31,14 @@ defmodule Hb.Transaction do
     |> validate_required([:amount, :type, :author_id, :category_id, :source_account_id, :exec_at, :accounting_id, :currency_id])
   end
 
+  def preload_all(query) do
+    from f in query, preload: [:currency, :author]
+  end
+
   defimpl Poison.Encoder, for: Hb.Transaction do
     def encode(model, options) do
       model
-      |> Map.take([:id, :description, :type, :currency])
+      |> Map.take([:id, :description, :type, :currency, :updated_at, :author, :source_account_id, :destination_account_id])
       |> Map.put(:amount, Money.to_string(model.amount))
       |> Poison.Encoder.encode(options)
     end

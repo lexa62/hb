@@ -23,35 +23,159 @@ defmodule Hb.AccountingChannel do
       |> Transaction.changeset(transaction_params)
 
     case Repo.insert(changeset) do
-      {:ok, transaction} ->
-        transaction = Repo.preload(transaction, :currency)
-        currency_balance =
+      {:ok, transaction_schema} ->
+        transaction = Transaction
+        |> Transaction.preload_all
+        |> Repo.get(transaction_schema.id)
+
+        currency_balances =
           case transaction.type do
             :transfer ->
               Repo.all(from a in Account, where: a.id in [^transaction.source_account_id, ^transaction.destination_account_id])
               |> Enum.map(fn(account) ->
-                account
-                |> assoc(:currency_balances)
-                |> Repo.get_by(currency_id: transaction.currency_id) || Repo.insert!(%CurrencyBalance{currency_id: transaction.currency_id, account_id: account.id, initial_amount: Money.new(0), current_amount: Money.new(0)})
+                currency_balance = account
+                  |> assoc(:currency_balances)
+                  |> Repo.get_by(currency_id: transaction.currency_id)
+
+                currency_balance = case currency_balance do
+                  nil -> Repo.insert!(%CurrencyBalance{currency_id: transaction.currency_id, account_id: account.id, initial_amount: Money.new(0), current_amount: Money.new(0)})
+                  b -> b
+                end
                 |> CurrencyBalance.calculate_current_amount
                 |> Repo.update!
+                currency_balance
               end)
             _ ->
-              Repo.get(Account, transaction.source_account_id)
-              |> assoc(:currency_balances)
-              |> Repo.get_by(currency_id: transaction.currency_id) || Repo.insert!(%CurrencyBalance{currency_id: transaction.currency_id, account_id: transaction.source_account_id, initial_amount: Money.new(0), current_amount: Money.new(0)})
+              currency_balance = Repo.get(Account, transaction.source_account_id)
+                |> assoc(:currency_balances)
+                |> Repo.get_by(currency_id: transaction.currency_id)
+
+              currency_balance = case currency_balance do
+                nil -> Repo.insert!(%CurrencyBalance{currency_id: transaction.currency_id, account_id: transaction.source_account_id, initial_amount: Money.new(0), current_amount: Money.new(0)})
+                b -> b
+              end
               |> CurrencyBalance.calculate_current_amount
               |> Repo.update!
+              [currency_balance]
           end
-        # IEx.pry
-        currency_balance = Repo.preload(currency_balance, :currency)
-        broadcast! socket, "transaction:created", %{transaction: transaction, currency_balance: currency_balance}
+        currency_balances = currency_balances
+          |> Enum.map(fn b -> Repo.preload(b, :currency) end)
+        broadcast! socket, "transaction:created", %{transaction: transaction, currency_balances: currency_balances}
         {:noreply, socket}
       {:error, changeset} ->
         errors = Enum.map(changeset.errors, fn {field, detail} ->
-          %{} |> Map.put(field, detail)
+          %{} |> Map.put(field, elem(detail, 0))
         end)
         {:reply, {:error, %{error: "Error creating transaction", reasons: errors}}, socket}
+    end
+  end
+
+  def handle_in("transaction:update", %{"transaction" => transaction_params}, socket) do
+    transaction = socket.assigns.accounting
+      |> assoc(:transactions)
+      |> Repo.get!(transaction_params["id"])
+
+    accounting = socket.assigns.accounting
+
+    changeset = Transaction.changeset(transaction, transaction_params)
+
+    case Repo.update(changeset) do
+      {:ok, transaction_schema} ->
+        transaction = Transaction
+        |> Transaction.preload_all
+        |> Repo.get(transaction_schema.id)
+
+        currency_balances =
+          case transaction.type do
+            :transfer ->
+              Repo.all(from a in Account, where: a.id in [^transaction.source_account_id, ^transaction.destination_account_id])
+              |> Enum.map(fn(account) ->
+                currency_balance = account
+                  |> assoc(:currency_balances)
+                  |> Repo.get_by(currency_id: transaction.currency_id)
+
+                currency_balance = case currency_balance do
+                  nil -> Repo.insert!(%CurrencyBalance{currency_id: transaction.currency_id, account_id: account.id, initial_amount: Money.new(0), current_amount: Money.new(0)})
+                  b -> b
+                end
+                |> CurrencyBalance.calculate_current_amount
+                |> Repo.update!
+                currency_balance
+              end)
+            _ ->
+              currency_balance = Repo.get(Account, transaction.source_account_id)
+                |> assoc(:currency_balances)
+                |> Repo.get_by(currency_id: transaction.currency_id)
+
+              currency_balance = case currency_balance do
+                nil -> Repo.insert!(%CurrencyBalance{currency_id: transaction.currency_id, account_id: transaction.source_account_id, initial_amount: Money.new(0), current_amount: Money.new(0)})
+                b -> b
+              end
+              |> CurrencyBalance.calculate_current_amount
+              |> Repo.update!
+              [currency_balance]
+          end
+        currency_balances = currency_balances
+          |> Enum.map(fn b -> Repo.preload(b, :currency) end)
+
+        broadcast! socket, "transaction:updated", %{transaction: transaction, currency_balances: currency_balances}
+        {:noreply, socket}
+      {:error, changeset} ->
+        errors = Enum.map(changeset.errors, fn {field, detail} ->
+          %{} |> Map.put(field, elem(detail, 0))
+        end)
+        {:reply, {:error, %{error: "Error updating transaction", reasons: errors}}, socket}
+    end
+  end
+
+  def handle_in("transaction:remove", %{"transaction_id" => transaction_id}, socket) do
+    transaction = socket.assigns.accounting
+      |> assoc(:transactions)
+      |> Repo.get!(transaction_id)
+
+    case Repo.delete(transaction) do
+      {:ok, transaction} ->
+
+        currency_balances =
+          case transaction.type do
+            :transfer ->
+              Repo.all(from a in Account, where: a.id in [^transaction.source_account_id, ^transaction.destination_account_id])
+              |> Enum.map(fn(account) ->
+                currency_balance = account
+                  |> assoc(:currency_balances)
+                  |> Repo.get_by(currency_id: transaction.currency_id)
+
+                currency_balance = case currency_balance do
+                  nil -> Repo.insert!(%CurrencyBalance{currency_id: transaction.currency_id, account_id: account.id, initial_amount: Money.new(0), current_amount: Money.new(0)})
+                  b -> b
+                end
+                |> CurrencyBalance.calculate_current_amount
+                |> Repo.update!
+                currency_balance
+              end)
+            _ ->
+              currency_balance = Repo.get(Account, transaction.source_account_id)
+                |> assoc(:currency_balances)
+                |> Repo.get_by(currency_id: transaction.currency_id)
+
+              currency_balance = case currency_balance do
+                nil -> Repo.insert!(%CurrencyBalance{currency_id: transaction.currency_id, account_id: transaction.source_account_id, initial_amount: Money.new(0), current_amount: Money.new(0)})
+                b -> b
+              end
+              |> CurrencyBalance.calculate_current_amount
+              |> Repo.update!
+              [currency_balance]
+          end
+        currency_balances = currency_balances
+          |> Enum.map(fn b -> Repo.preload(b, :currency) end)
+
+        broadcast! socket, "transaction:removed", %{transaction_id: transaction.id, currency_balances: currency_balances}
+        {:noreply, socket}
+      {:error, changeset} ->
+        errors = Enum.map(changeset.errors, fn {field, detail} ->
+          %{} |> Map.put(field, elem(detail, 0))
+        end)
+        {:reply, {:error, %{error: "Error removing transaction", reasons: errors}}, socket}
     end
   end
 
