@@ -322,7 +322,8 @@ const Actions = {
       .then((data) => {
         dispatch({
           type: Constants.CURRENT_ACCOUNTING_REPORT_RECEIVED,
-          report_transactions: data.report_transactions
+          report_transactions: data.transactions,
+          tree: data.tree,
         });
       });
     };

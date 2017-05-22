@@ -33,12 +33,12 @@ defmodule Hb.ReportController do
       |> assoc(:transactions)
       |> apply_filters!(conn)
       |> elem(0)
+      |> Transaction.preload_all
       |> Repo.all
-      |> Repo.preload(:category)
 
     IO.inspect params
 
-    if true do
+    if false do
       category_tree = %{}
       grouped_transactions = transactions |> Enum.group_by(&(&1.category))
       categories = grouped_transactions |> Map.keys

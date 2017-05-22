@@ -1,4 +1,5 @@
 defmodule TransactionsCsvSerializer do
+  require IEx
   defmodule WrongFieldsError do
     defexception message: "Wrong columns count"
   end
@@ -8,7 +9,6 @@ defmodule TransactionsCsvSerializer do
   end
 
   alias NimbleCSV.RFC4180, as: CSV
-  require IEx
 
   alias Hb.{Repo, Transaction, Currency, Account, Category}
 
@@ -88,6 +88,7 @@ defmodule TransactionsCsvSerializer do
   end
 
   defp prepare_type(amount, account_to) do
+    amount = String.to_integer(amount)
     cond do
       amount > 0 and account_to == "" ->
         :income
@@ -108,7 +109,7 @@ defmodule TransactionsCsvSerializer do
     if exec_at == "" do
       DateTime.utc_now
     else
-      NaiveDateTime.from_iso8601!(exec_at) |> DateTime.from_naive("Etc/UTC")
+      NaiveDateTime.from_iso8601!(exec_at) |> DateTime.from_naive!("Etc/UTC")
     end
   end
 

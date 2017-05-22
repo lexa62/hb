@@ -23,7 +23,7 @@ class AccountingExportImportView extends React.Component {
           <Row>
              <Col md={6}>
               <Button bsStyle="default" onClick={::this._exportTransactions}>
-                Экспортировать все операции ({transactions.length})
+                Экспортировать все операции
               </Button>
             </Col>
           </Row>

@@ -37,11 +37,11 @@ class MainLayout extends React.Component {
           </LinkContainer>*/}
           <NavDropdown eventKey={6} title="Настройки" id="basic-nav-dropdown">
             <LinkContainer to={`/accounting/${currentAccounting.id}/expense_categories`}>
-              <MenuItem eventKey={6.1}>Категории затрат</MenuItem>
+              <MenuItem eventKey={6.1}>Категории</MenuItem>
             </LinkContainer>
-            <LinkContainer to={`/accounting/${currentAccounting.id}/income_categories`}>
+            {/*<LinkContainer to={`/accounting/${currentAccounting.id}/income_categories`}>
               <MenuItem eventKey={6.2}>Источники доходов</MenuItem>
-            </LinkContainer>
+            </LinkContainer>*/}
             <LinkContainer to={`/accounting/${currentAccounting.id}/accounts`}>
               <MenuItem eventKey={6.3}>Счета</MenuItem>
             </LinkContainer>

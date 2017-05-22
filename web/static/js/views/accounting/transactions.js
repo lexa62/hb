@@ -195,7 +195,7 @@ class TransactionForm extends React.Component {
   }
 
   render() {
-    console.log("STATE", this.state);
+    // console.log("STATE", this.state);
     return (
       <div>
         <ButtonToolbar>
@@ -358,7 +358,7 @@ class AccountingTransactionsView extends React.Component {
     const date = new Date().toISOString();
 
     if(editingTransactionId) edit_transaction = transactions.find(a => a.id == editingTransactionId)
-    console.log(edit_transaction);
+    // console.log(edit_transaction);
 
     return (
       <Grid fluid>

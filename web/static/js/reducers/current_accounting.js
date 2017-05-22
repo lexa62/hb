@@ -228,7 +228,7 @@ export default function reducer(state = initialState, action = {}) {
 
 
     case Constants.CURRENT_ACCOUNTING_REPORT_RECEIVED:
-      return { ...state, report_transactions: action.report_transactions };
+      return { ...state, report_transactions: action.report_transactions, report_tree: action.tree };
 
 
     case Constants.CURRENT_ACCOUNTING_RESET:

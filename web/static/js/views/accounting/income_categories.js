@@ -86,8 +86,8 @@ class CurrencyForm extends React.Component {
       iso_code: iso_code
     };
 
-    console.log(data);
-    console.log(manual_rate);
+    // console.log(data);
+    // console.log(manual_rate);
 
     if(isEdit) {
       data = {...data, id: id }
@@ -118,7 +118,7 @@ class CurrencyForm extends React.Component {
 
   render() {
     // console.log('PROPS', this.props);
-    console.log('STATE', this.state);
+    // console.log('STATE', this.state);
     const { name, id, is_default } = this.props;
     return (
       <Form onSubmit={::this._handleSubmit}>
@@ -171,7 +171,7 @@ class AccountingIncomeCategoriesView extends React.Component {
     if (!fetching) {
 
       if(editingCurrencyId) edit_currency = currencies.find(a => a.id == editingCurrencyId)
-      console.log(edit_currency);
+      // console.log(edit_currency);
 
       content = (
         <Row>

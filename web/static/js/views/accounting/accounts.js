@@ -128,7 +128,7 @@ class AccountForm extends React.Component {
 
   render() {
     // console.log('PROPS', this.props);
-    console.log('STATE', this.state);
+    // console.log('STATE', this.state);
     const { name, id, is_default } = this.props;
     return (
       <Form onSubmit={::this._handleSubmit}>
