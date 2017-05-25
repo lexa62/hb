@@ -33,7 +33,6 @@ class TransactionRow extends React.Component {
         <td>{amount}</td>
         <td>{type_name}</td>
         <td>{this.props.currency.name}</td>
-        <td>{description}</td>
         <td>{this.props.author.email}</td>
         <td>{updated_at}</td>
       </tr>
@@ -57,7 +56,6 @@ class TransactionList extends React.Component {
               <th>Сумма</th>
               <th>Тип</th>
               <th>Валюта</th>
-              <th>Описание</th>
               <th>Исполнитель</th>
               <th>Обновлена</th>
             </tr>
@@ -80,13 +78,15 @@ class AccountingReportsView extends React.Component {
     this.state = {
       grouped: false,
       options: {
-        title: 'Затраты по категориям',
-        legend: 'none',
+        title: 'Затраты по категориям за период',
+        is3D: true
       },
       rows: [
-        ["Еда", 12],
-        ["Транспорт", 5.5],
+        ["Еда", 250],
+        ["Транспорт", 30],
         ["Интернет", 7],
+        ["Коммуналка", 50],
+        ["Прочие затраты", 100],
       ],
       columns: [
         {
@@ -98,6 +98,27 @@ class AccountingReportsView extends React.Component {
           label: 'Затраты',
         },
       ],
+
+      options_alt: {
+        title: 'Доходы по категориям за период',
+        is3D: true
+      },
+      rows_alt: [
+        ["Зарплата", 1000],
+        ["Стипендия", 70],
+        ["Проценты", 10],
+        ["Другие", 50],
+      ],
+      columns_alt: [
+        {
+          type: 'string',
+          label: 'Категория',
+        },
+        {
+          type: 'number',
+          label: 'Доходы',
+        },
+      ],
     };
   }
 
@@ -105,15 +126,13 @@ class AccountingReportsView extends React.Component {
     e.preventDefault();
 
     const { currentAccounting, dispatch } = this.props;
-    // console.log(this.from_date.value);
-    // console.log(this.to_date.value);
-    this.setState({
-      rows: [
-        ["Еда", 12],
-        ["Транспорт", 20],
-        ["Интернет", 7],
-      ]
-    });
+    // this.setState({
+    //   rows: [
+    //     ["Еда", 12],
+    //     ["Транспорт", 20],
+    //     ["Интернет", 7],
+    //   ]
+    // });
 
     const data = {
       from: this.from_date.value,
@@ -130,7 +149,7 @@ class AccountingReportsView extends React.Component {
     return (
       <Grid fluid>
         <Row>
-          <Col md={6}>
+          <Col md={4}>
             <Well>
               <h4>Параметры отчёта</h4>
               <Form onSubmit={::this._handleSubmit}>
@@ -217,17 +236,49 @@ class AccountingReportsView extends React.Component {
               </Col>
             </Row>
           </Col>
-          <Col md={6}>
+          <Col md={4}>
             <Well>
               <Chart
                 chartType="PieChart"
                 rows={this.state.rows}
                 columns={this.state.columns}
                 options={this.state.options}
-                graph_id="ScatterChart"
+                graph_id="PieChart"
                 width={'100%'}
-                height={'400px'}
-                legend_toggle
+              />
+            </Well>
+          </Col>
+          <Col md={4}>
+            <Well>
+              <Chart
+                chartType="ComboChart"
+                data={[["Месяц","Доходы","Затраты"],["2017/01",1235,938],["2017/02",945,840],["2017/03",1490,752],["2017/04",1370,1110],["2017/05",1310,956]]}
+                options={{"title":"Общая динамика затрат и доходов","vAxis":{"title":"Сумма"},"hAxis":{"title":"Месяц"},"seriesType":"bars","series":{"5":{"type":"line"}}}}
+                graph_id="ComboChart"
+                width={'100%'}
+              />
+            </Well>
+          </Col>
+          <Col md={4}>
+            <Well>
+              <Chart
+                chartType="PieChart"
+                rows={this.state.rows_alt}
+                columns={this.state.columns_alt}
+                options={this.state.options_alt}
+                graph_id="PieChart2"
+                width={'100%'}
+              />
+            </Well>
+          </Col>
+          <Col md={4}>
+            <Well>
+              <Chart
+                chartType="BarChart"
+                data={[["Счёт","Доходы"],["Беларусбанк",734],["Кошелёк",635],["Хранилище",1654],["Карточка",986]]}
+                options={{"title":"Пополнения по счетам за период","legend":{"position":"none"}}}
+                graph_id="BarChart"
+                width={'100%'}
               />
             </Well>
           </Col>
