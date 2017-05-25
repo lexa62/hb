@@ -146,14 +146,6 @@ class TransactionForm extends React.Component {
       this.setState(::this.getState(this.props));
     }
 
-    // this.setState({
-    //   type: Constants.EXPENSE,
-    //   amount: '',
-    //   description: '',
-    //   currency_id: defaultCurrency.iso_code,
-    //   category_id: '',
-    //   exec_at: ''
-    // });
   }
 
   _handleInputChange(event) {
@@ -298,23 +290,6 @@ class TransactionForm extends React.Component {
 
 
 class AccountingTransactionsView extends React.Component {
-  componentDidMount() {
-    // const { socket } = this.props;
-
-    // if (!socket) {
-    //   return false;
-    // }
-
-    // this.props.dispatch(Actions.connectToChannel(socket, this.props.params.id));
-  }
-
-  componentWillUnmount() {
-    // const { currentAccounting } = this.props;
-    // if (currentAccounting) {
-    //   this.props.dispatch(Actions.leaveChannel(currentAccounting.channel));
-    // }
-  }
-
   _renderAccounts(accounts) {
     return accounts.map((a) => {
       const content = a.currency_balances.sort((a, b) => a.id >= b.id).map((c) => {

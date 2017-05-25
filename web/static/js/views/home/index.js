@@ -4,9 +4,6 @@ import classnames           from 'classnames';
 import { Link }             from 'react-router';
 
 import { setDocumentTitle } from '../../utils';
-// import Actions              from '../../actions/boards';
-// import BoardCard            from '../../components/boards/card';
-// import BoardForm            from '../../components/boards/form';
 import Actions              from '../../actions/sessions';
 import { Table, Col, Grid, Row } from 'react-bootstrap';
 import { push }           from 'react-router-redux';
@@ -53,10 +50,6 @@ class HomeIndexView extends React.Component {
   componentDidMount() {
     setDocumentTitle('Аккаунты');
   }
-
-  // componentWillUnmount() {
-  //   this.props.dispatch(Actions.reset());
-  // }
 
   _renderOwnedAccounting() {
     const { fetching, ownedAccounting } = this.props;
@@ -163,5 +156,3 @@ const mapStateToProps = (state) => (
 );
 
 export default connect(mapStateToProps)(HomeIndexView);
-// export default connect(null, mapDispatchToProps)(HomeIndexView);
-// export default HomeIndexView;

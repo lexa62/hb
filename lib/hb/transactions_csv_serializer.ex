@@ -12,28 +12,15 @@ defmodule TransactionsCsvSerializer do
 
   alias Hb.{Repo, Transaction, Currency, Account, Category}
 
-  # @default_fields ~w(amount currency)a
   @default_fields ~w(amount currency category account_from account_to exec_at description)a
-  # @fields [amount: Money,
-  #          currency: String,
-  #          category: String,
-  #          exec_at: DateTime,
-  #          description: String,
-  #          author: String]
 
   def parse_and_save(file_path, accounting_id, author_id) do
     try do
-      # Repo.transaction(fn ->
         res = file_path
         |> File.stream!
         |> CSV.parse_stream
         |> Stream.map(fn
           [amount, currency, category, account_from, account_to, exec_at, description] ->
-            # currency == "" ? currency.default : currency
-
-
-            # CONTROLLER
-            # TEST
             type = prepare_type(amount, account_to)
             category_id = prepare_category(category, type, accounting_id)
             amount = prepare_amount(amount)
@@ -57,23 +44,13 @@ defmodule TransactionsCsvSerializer do
         end)
         |> Enum.to_list
         |> Enum.count
-        # IO.inspect res
-        # raise "please rollback it"
-      # end)
     rescue
       e in _ ->
-        # IEx.pry
         {:error, e}
     end
-    #   {:binary.copy(name), String.to_integer(age)}
-    # |> Enum.to_list
-    # |> Enum.each(fn(t) ->
-    #   IO.inspect(elem(t, 0))
-    # end)
   end
 
   def to_csv_string(transactions) do
-    # HEADERS
     transactions = Repo.preload(transactions, [:currency, :source_account, :destination_account, :category])
     res = Enum.map(transactions, fn transaction ->
       @default_fields
@@ -82,7 +59,6 @@ defmodule TransactionsCsvSerializer do
       end)
     end)
     |> List.insert_at(0, @default_fields)
-    # |> CSV.dump_to_stream
     |> CSV.dump_to_iodata
     |> IO.iodata_to_binary
   end

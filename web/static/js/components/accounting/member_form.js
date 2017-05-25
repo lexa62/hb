@@ -3,18 +3,6 @@ import Actions     from '../../actions/current_accounting';
 import { Form, FormGroup, FormControl, Button, ControlLabel, HelpBlock } from 'react-bootstrap';
 
 export default class MemberForm extends React.Component {
-  // _renderError() {
-  //   const { error } = this.props;
-
-  //   if (!error) return false;
-
-  //   return (
-  //     <div className="error">
-  //       {error}
-  //     </div>
-  //   );
-  // }
-
   _handleSubmit(e) {
     e.preventDefault();
 

@@ -43,52 +43,12 @@ const Actions = {
         });
       });
 
-      // channel.on('user:joined', (msg) => {
-      //   dispatch({
-      //     type: Constants.CURRENT_BOARD_CONNECTED_USERS,
-      //     users: msg.users,
-      //   });
-      // });
-
-      // channel.on('user:left', (msg) => {
-      //   dispatch({
-      //     type: Constants.CURRENT_BOARD_CONNECTED_USERS,
-      //     users: msg.users,
-      //   });
-      // });
-
-      // channel.on('list:created', (msg) => {
-      //   dispatch({
-      //     type: Constants.CURRENT_BOARD_LIST_CREATED,
-      //     list: msg.list,
-      //   });
-      // });
-
-      // channel.on('card:created', (msg) => {
-      //   dispatch({
-      //     type: Constants.CURRENT_BOARD_CARD_CREATED,
-      //     card: msg.card,
-      //   });
-      // });
-
       channel.on('member:added', (msg) => {
         dispatch({
           type: Constants.CURRENT_ACCOUNTING_MEMBER_ADDED,
           user: msg.user,
         });
       });
-
-      // channel.on('card:updated', (msg) => {
-      //   dispatch({
-      //     type: Constants.BOARDS_SET_CURRENT_BOARD,
-      //     board: msg.board,
-      //   });
-
-      //   dispatch({
-      //     type: Constants.CURRENT_CARD_SET,
-      //     card: msg.card,
-      //   });
-      // });
 
       channel.on('financial_goal:updated', (msg) => {
         dispatch({
@@ -428,45 +388,6 @@ const Actions = {
     };
   },
 
-
-  // updateCard: (channel, card) => {
-  //   return dispatch => {
-  //     channel.push('card:update', { card: card });
-  //   };
-  // },
-
-  // updateList: (channel, list) => {
-  //   return dispatch => {
-  //     channel.push('list:update', { list: list });
-  //   };
-  // },
-
-  // showMembersForm: (show) => {
-  //   return dispatch => {
-  //     dispatch({
-  //       type: Constants.CURRENT_BOARD_SHOW_MEMBERS_FORM,
-  //       show: show,
-  //     });
-  //   };
-  // },
-
-  // editList: (listId) => {
-  //   return dispatch => {
-  //     dispatch({
-  //       type: Constants.CURRENT_BOARD_EDIT_LIST,
-  //       listId: listId,
-  //     });
-  //   };
-  // },
-
-  // showCardForm: (listId) => {
-  //   return dispatch => {
-  //     dispatch({
-  //       type: Constants.CURRENT_BOARD_SHOW_CARD_FORM_FOR_LIST,
-  //       listId: listId,
-  //     });
-  //   };
-  // },
 };
 
 export default Actions;

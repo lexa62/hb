@@ -4,8 +4,6 @@ defmodule Hb.Accounting do
   alias __MODULE__
   alias Hb.{User, Transaction, Currency, Account, Category, FinancialGoal, AccountingUser}
 
-  # @derive {Poison.Encoder, only: [:id, :transactions, :currencies, :accounts, :categories, :inserted_at, :accounting_users]}
-
   schema "accounting" do
     belongs_to :user, User, foreign_key: :owner_id
     has_many :transactions, Transaction

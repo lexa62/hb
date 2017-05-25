@@ -10,17 +10,6 @@ export default class ImportTransactionsForm extends React.Component {
       error: null
     };
   }
-  // _renderError() {
-  //   const error = this.props.error || this.state.error;
-
-  //   if (!error) return false;
-
-  //   return (
-  //     <div className="error">
-  //       {error}
-  //     </div>
-  //   );
-  // }
 
   _handleInputChange(event) {
     const target = event.target;

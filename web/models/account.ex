@@ -30,13 +30,4 @@ defmodule Hb.Account do
     from f in query, preload: [currency_balances: ^currency_balances_query]
 
   end
-
-  # defimpl Poison.Encoder, for: Hb.Transaction do
-  #   def encode(model, options) do
-  #     model
-  #     |> Map.take([:id, :name, :is_default])
-  #     |> Map.put(:amount, Money.to_string(model.amount))
-  #     |> Poison.Encoder.encode(options)
-  #   end
-  # end
 end

@@ -11,25 +11,6 @@ export function setCurrentUser(dispatch, user) {
 
   socket.connect();
 
-  // const channel = socket.channel(`users:${user.id}`);
-
-  // if (channel.state != 'joined') {
-  //   channel.join().receive('ok', () => {
-  //     dispatch({
-  //       type: Constants.CURRENT_USER,
-  //       currentUser: user,
-  //       socket: socket,
-  //       channel: channel,
-  //     });
-  //   });
-  // }
-
-  // channel.on('boards:add', (msg) => {
-  //   dispatch({
-  //       type: Constants.BOARDS_ADDED,
-  //       board: msg.board,
-  //     });
-  // });
   dispatch({
     type: Constants.CURRENT_USER,
     currentUser: user,
@@ -90,7 +71,6 @@ const Actions = {
 
         dispatch(push('/sign_in'));
 
-        // dispatch({ type: Constants.BOARDS_FULL_RESET });
       })
       .catch(function (error) {
         console.log(error);
