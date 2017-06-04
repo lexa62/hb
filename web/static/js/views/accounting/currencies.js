@@ -106,8 +106,10 @@ class CurrencyForm extends React.Component {
     switch (name) {
       case 'manual_rate':
         value = value.replace(/[^0-9.]+/g, '');
+        break;
       case 'iso_code':
         value = value.substring(0, 3).replace(/[^A-Z]+/g, '');
+        break;
       default:
       ;
     }
