@@ -13,7 +13,7 @@ class FinancialGoalForm extends React.Component {
       name: props.name,
       current_amount: props.current_amount,
       goal_amount: props.goal_amount,
-      currency_id: props.currency ? props.currency.id : props.currencies[0].id
+      currency_id: props.currency != undefined ? props.currency.id : props.currencies[0] && props.currencies[0].id
     };
   }
 

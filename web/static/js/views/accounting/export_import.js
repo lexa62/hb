@@ -30,7 +30,7 @@ class AccountingExportImportView extends React.Component {
           <Row>
             <Col md={6}>
               <ImportTransactionsForm dispatch={dispatch} accountingId={id} error={error != undefined && (Array.isArray(error) ? error.map(e => `Строка ${e[1] + 1} - ${e[0]}`): error)} />
-              { imported_count != undefined && <p>Импортировано {imported_count} операций</p> }
+              { imported_count != undefined && <p>Импортировано {imported_count} операций, обновите страницу</p> }
             </Col>
           </Row>
         </Grid>

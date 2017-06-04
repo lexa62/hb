@@ -205,7 +205,7 @@ class AccountingReportsView extends React.Component {
                 <FormGroup>
                   <ControlLabel>Пересчитать в валюте</ControlLabel>
                   {' '}
-                  <FormControl componentClass="select" name="currency_code" value={this.state.currency_code} onChange={::this._handleInputChange} >
+                  <FormControl componentClass="select" required={true} name="currency_code" value={this.state.currency_code} onChange={::this._handleInputChange} >
                     {
                       this.props.currentAccounting.currencies.map((c) => {
                         return (

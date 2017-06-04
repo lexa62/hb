@@ -162,6 +162,7 @@ defmodule TransactionsCsvSerializer do
         "" ->
           Account
           |> Repo.get_by(is_default: true, accounting_id: accounting_id) ||
+            Repo.get_by(Account, name: name, accounting_id: accounting_id) ||
             Repo.insert!(%Account{name: name, accounting_id: accounting_id})
         _ ->
           Account

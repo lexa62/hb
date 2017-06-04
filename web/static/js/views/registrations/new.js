@@ -55,7 +55,7 @@ class RegistrationsNew extends React.Component {
             <HelpBlock>{renderErrorsFor(errors, 'password')}</HelpBlock>
           </FormGroup>
           <FormGroup controlId="formPasswordConfirmation" validationState={renderErrorsFor(errors, 'password_confirmation').length > 0 ? "error" : null}>
-            <ControlLabel>Password</ControlLabel>
+            <ControlLabel>Password confirmation</ControlLabel>
             <FormControl type="password" inputRef={ref => { this.passwordConfirmation = ref }} placeholder="Confirm password" required={true} />
             <HelpBlock>{renderErrorsFor(errors, 'password_confirmation')}</HelpBlock>
           </FormGroup>
