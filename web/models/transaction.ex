@@ -59,7 +59,6 @@ defmodule Hb.Transaction do
                   if(model.currency.manual_rate) do
                     model.currency.manual_rate
                   else
-                    # IEx.pry
                     YahooFinance.exchange_rate_for([model.currency.iso_code, to_currency.iso_code]) |> elem(1)
                   end
                 Money.multiply(model.amount, current_currency_rate)
@@ -68,10 +67,9 @@ defmodule Hb.Transaction do
                   if(to_currency.manual_rate) do
                     to_currency.manual_rate
                   else
-                    YahooFinance.exchange_rate_for([model.currency.iso_code, to_currency.iso_code]) |> elem(1)
+                    YahooFinance.exchange_rate_for([to_currency.iso_code, model.currency.iso_code]) |> elem(1)
                   end
-                # IEx.pry
-                Money.multiply(model.amount, to_currency_rate)
+                model.amount.amount / to_currency_rate |> round |> Money.new
               !to_currency.is_default ->
                 default_currency = Enum.find(currencies, &(&1.is_default == true))
                 current_currency_rate =
@@ -84,10 +82,8 @@ defmodule Hb.Transaction do
                   if(to_currency.manual_rate) do
                     to_currency.manual_rate
                   else
-                    # IEx.pry
                     YahooFinance.exchange_rate_for([to_currency.iso_code, default_currency.iso_code]) |> elem(1)
                   end
-                # IEx.pry
                 model.amount.amount * current_currency_rate / to_currency_rate |> round |> Money.new
             end
           true ->

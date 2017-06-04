@@ -1,5 +1,4 @@
 defmodule TransactionsCsvSerializer do
-  require IEx
   defmodule WrongFieldsError do
     defexception message: "Wrong columns count"
   end
@@ -165,12 +164,10 @@ defmodule TransactionsCsvSerializer do
           |> Repo.get_by(is_default: true, accounting_id: accounting_id) ||
             Repo.insert!(%Account{name: name, accounting_id: accounting_id})
         _ ->
-          # IEx.pry
           Account
           |> Repo.get_by(name: name, accounting_id: accounting_id) ||
             Repo.insert!(%Account{name: name, accounting_id: accounting_id})
       end
-    # IEx.pry
     record.id
   end
 

@@ -1,5 +1,4 @@
 defmodule Hb.AccountingChannel do
-  require IEx
   use Hb.Web, :channel
 
   alias Hb.{Repo, User, Accounting, Transaction, AccountingUser, CurrencyBalance,

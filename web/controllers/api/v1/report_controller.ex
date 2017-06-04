@@ -1,5 +1,4 @@
 defmodule Hb.ReportController do
-  require IEx
   use Hb.Web, :controller
   use Filterable.Phoenix.Controller
 

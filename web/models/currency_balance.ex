@@ -1,6 +1,5 @@
 defmodule Hb.CurrencyBalance do
   use Hb.Web, :model
-  require IEx
 
   alias Hb.{Account, Currency, Repo, Transaction}
 

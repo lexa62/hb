@@ -1,5 +1,4 @@
 defmodule Hb.TransactionView do
-  require IEx
   use Hb.Web, :view
 
   def render("export.json", %{content: csv_content}) do

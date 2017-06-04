@@ -1,4 +1,3 @@
-require IEx;
 defmodule Hb.TransactionController do
   use Hb.Web, :controller
 
