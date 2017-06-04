@@ -27,43 +27,14 @@ defmodule Hb.AccountingChannel do
         |> Transaction.preload_all
         |> Repo.get(transaction_schema.id)
 
-        currency_balances =
-          case transaction.type do
-            :transfer ->
-              Repo.all(from a in Account, where: a.id in [^transaction.source_account_id, ^transaction.destination_account_id])
-              |> Enum.map(fn(account) ->
-                currency_balance = account
-                  |> assoc(:currency_balances)
-                  |> Repo.get_by(currency_id: transaction.currency_id)
-
-                currency_balance = case currency_balance do
-                  nil -> Repo.insert!(%CurrencyBalance{currency_id: transaction.currency_id, account_id: account.id, initial_amount: Money.new(0), current_amount: Money.new(0)})
-                  b -> b
-                end
-                |> CurrencyBalance.calculate_current_amount
-                |> Repo.update!
-                currency_balance
-              end)
-            _ ->
-              currency_balance = Repo.get(Account, transaction.source_account_id)
-                |> assoc(:currency_balances)
-                |> Repo.get_by(currency_id: transaction.currency_id)
-
-              currency_balance = case currency_balance do
-                nil -> Repo.insert!(%CurrencyBalance{currency_id: transaction.currency_id, account_id: transaction.source_account_id, initial_amount: Money.new(0), current_amount: Money.new(0)})
-                b -> b
-              end
-              |> CurrencyBalance.calculate_current_amount
-              |> Repo.update!
-              [currency_balance]
-          end
+        currency_balances = Transaction.update_currency_balance(transaction)
         currency_balances = currency_balances
           |> Enum.map(fn b -> Repo.preload(b, :currency) end)
         broadcast! socket, "transaction:created", %{transaction: transaction, currency_balances: currency_balances}
         {:noreply, socket}
       {:error, changeset} ->
         errors = Enum.map(changeset.errors, fn {field, detail} ->
-          %{} |> Map.put(field, elem(detail, 0))
+          "#{field}: #{elem(detail, 0)}"
         end)
         {:reply, {:error, %{error: "Error creating transaction", reasons: errors}}, socket}
     end
@@ -74,8 +45,6 @@ defmodule Hb.AccountingChannel do
       |> assoc(:transactions)
       |> Repo.get!(transaction_params["id"])
 
-    accounting = socket.assigns.accounting
-
     changeset = Transaction.changeset(transaction, transaction_params)
 
     case Repo.update(changeset) do
@@ -84,36 +53,7 @@ defmodule Hb.AccountingChannel do
         |> Transaction.preload_all
         |> Repo.get(transaction_schema.id)
 
-        currency_balances =
-          case transaction.type do
-            :transfer ->
-              Repo.all(from a in Account, where: a.id in [^transaction.source_account_id, ^transaction.destination_account_id])
-              |> Enum.map(fn(account) ->
-                currency_balance = account
-                  |> assoc(:currency_balances)
-                  |> Repo.get_by(currency_id: transaction.currency_id)
-
-                currency_balance = case currency_balance do
-                  nil -> Repo.insert!(%CurrencyBalance{currency_id: transaction.currency_id, account_id: account.id, initial_amount: Money.new(0), current_amount: Money.new(0)})
-                  b -> b
-                end
-                |> CurrencyBalance.calculate_current_amount
-                |> Repo.update!
-                currency_balance
-              end)
-            _ ->
-              currency_balance = Repo.get(Account, transaction.source_account_id)
-                |> assoc(:currency_balances)
-                |> Repo.get_by(currency_id: transaction.currency_id)
-
-              currency_balance = case currency_balance do
-                nil -> Repo.insert!(%CurrencyBalance{currency_id: transaction.currency_id, account_id: transaction.source_account_id, initial_amount: Money.new(0), current_amount: Money.new(0)})
-                b -> b
-              end
-              |> CurrencyBalance.calculate_current_amount
-              |> Repo.update!
-              [currency_balance]
-          end
+        currency_balances = Transaction.update_currency_balance(transaction)
         currency_balances = currency_balances
           |> Enum.map(fn b -> Repo.preload(b, :currency) end)
 
@@ -121,7 +61,7 @@ defmodule Hb.AccountingChannel do
         {:noreply, socket}
       {:error, changeset} ->
         errors = Enum.map(changeset.errors, fn {field, detail} ->
-          %{} |> Map.put(field, elem(detail, 0))
+          "#{field}: #{elem(detail, 0)}"
         end)
         {:reply, {:error, %{error: "Error updating transaction", reasons: errors}}, socket}
     end
@@ -135,36 +75,7 @@ defmodule Hb.AccountingChannel do
     case Repo.delete(transaction) do
       {:ok, transaction} ->
 
-        currency_balances =
-          case transaction.type do
-            :transfer ->
-              Repo.all(from a in Account, where: a.id in [^transaction.source_account_id, ^transaction.destination_account_id])
-              |> Enum.map(fn(account) ->
-                currency_balance = account
-                  |> assoc(:currency_balances)
-                  |> Repo.get_by(currency_id: transaction.currency_id)
-
-                currency_balance = case currency_balance do
-                  nil -> Repo.insert!(%CurrencyBalance{currency_id: transaction.currency_id, account_id: account.id, initial_amount: Money.new(0), current_amount: Money.new(0)})
-                  b -> b
-                end
-                |> CurrencyBalance.calculate_current_amount
-                |> Repo.update!
-                currency_balance
-              end)
-            _ ->
-              currency_balance = Repo.get(Account, transaction.source_account_id)
-                |> assoc(:currency_balances)
-                |> Repo.get_by(currency_id: transaction.currency_id)
-
-              currency_balance = case currency_balance do
-                nil -> Repo.insert!(%CurrencyBalance{currency_id: transaction.currency_id, account_id: transaction.source_account_id, initial_amount: Money.new(0), current_amount: Money.new(0)})
-                b -> b
-              end
-              |> CurrencyBalance.calculate_current_amount
-              |> Repo.update!
-              [currency_balance]
-          end
+        currency_balances = Transaction.update_currency_balance(transaction)
         currency_balances = currency_balances
           |> Enum.map(fn b -> Repo.preload(b, :currency) end)
 
@@ -172,7 +83,7 @@ defmodule Hb.AccountingChannel do
         {:noreply, socket}
       {:error, changeset} ->
         errors = Enum.map(changeset.errors, fn {field, detail} ->
-          %{} |> Map.put(field, elem(detail, 0))
+          "#{field}: #{elem(detail, 0)}"
         end)
         {:reply, {:error, %{error: "Error removing transaction", reasons: errors}}, socket}
     end
@@ -207,8 +118,6 @@ defmodule Hb.AccountingChannel do
 
 
   def handle_in("financial_goal:add", %{"financial_goal" => financial_goal_params}, socket) do
-    current_user = socket.assigns.current_user
-
     financial_goal = socket.assigns.accounting
       |> build_assoc(:financial_goals)
 
@@ -222,8 +131,11 @@ defmodule Hb.AccountingChannel do
 
         broadcast! socket, "financial_goal:created", %{financial_goal: financial_goal}
         {:noreply, socket}
-      {:error, _changeset} ->
-        {:reply, {:error, %{error: "Error creating financial goal"}}, socket}
+      {:error, changeset} ->
+        errors = Enum.map(changeset.errors, fn {field, detail} ->
+          "#{field}: #{elem(detail, 0)}"
+        end)
+        {:reply, {:error, %{error: "Error creating financial goal", reasons: errors}}, socket}
     end
   end
 
@@ -242,8 +154,11 @@ defmodule Hb.AccountingChannel do
 
         broadcast! socket, "financial_goal:updated", %{financial_goal: financial_goal}
         {:noreply, socket}
-      {:error, _changeset} ->
-        {:reply, {:error, %{error: "Error updating financial goal"}}, socket}
+      {:error, changeset} ->
+        errors = Enum.map(changeset.errors, fn {field, detail} ->
+          "#{field}: #{elem(detail, 0)}"
+        end)
+        {:reply, {:error, %{error: "Error updating financial goal", reasons: errors}}, socket}
     end
   end
 
@@ -265,8 +180,6 @@ defmodule Hb.AccountingChannel do
 
 
   def handle_in("account:add", %{"account" => account_params}, socket) do
-    current_user = socket.assigns.current_user
-
     account = socket.assigns.accounting
       |> build_assoc(:accounts)
 
@@ -288,8 +201,11 @@ defmodule Hb.AccountingChannel do
 
         broadcast! socket, "account:created", %{account: account}
         {:noreply, socket}
-      {:error, _changeset} ->
-        {:reply, {:error, %{error: "Error creating account"}}, socket}
+      {:error, changeset} ->
+        errors = Enum.map(changeset.errors, fn {field, detail} ->
+          "#{field}: #{elem(detail, 0)}"
+        end)
+        {:reply, {:error, %{error: "Error creating account", reasons: errors}}, socket}
     end
   end
 
@@ -298,7 +214,6 @@ defmodule Hb.AccountingChannel do
       |> assoc(:accounts)
       |> Repo.get!(account_params["id"])
 
-    IO.inspect account_params
     account_params["currency_balances"]
     |> Enum.each(fn(currency_balance) ->
       case currency_balance["id"] do
@@ -321,8 +236,11 @@ defmodule Hb.AccountingChannel do
 
         broadcast! socket, "account:updated", %{account: account}
         {:noreply, socket}
-      {:error, _changeset} ->
-        {:reply, {:error, %{error: "Error updating account"}}, socket}
+      {:error, changeset} ->
+        errors = Enum.map(changeset.errors, fn {field, detail} ->
+          "#{field}: #{elem(detail, 0)}"
+        end)
+        {:reply, {:error, %{error: "Error updating account", reasons: errors}}, socket}
     end
   end
 
@@ -343,24 +261,20 @@ defmodule Hb.AccountingChannel do
             broadcast! socket, "account:removed", %{account_id: account_schema.id}
             {:noreply, socket}
           {:error, _changeset} ->
-            {:reply, {:error, %{error: "Error removing financial goal"}}, socket}
+            {:reply, {:error, %{error: "Error removing account"}}, socket}
         end
       _ ->
-        {:reply, {:error, %{error: "Error removing financial goal: transactions exists"}}, socket}
+        {:reply, {:error, %{error: "Error removing account: related transactions exists"}}, socket}
     end
   end
 
 
 
   def handle_in("currency:add", %{"currency" => currency_params}, socket) do
-    current_user = socket.assigns.current_user
-
     currency = socket.assigns.accounting
       |> build_assoc(:currencies)
 
     changeset = Currency.changeset(currency, currency_params)
-
-    IO.inspect changeset
 
     case Repo.insert(changeset) do
       {:ok, currency_schema} ->
@@ -369,8 +283,11 @@ defmodule Hb.AccountingChannel do
 
         broadcast! socket, "currency:created", %{currency: currency}
         {:noreply, socket}
-      {:error, _changeset} ->
-        {:reply, {:error, %{error: "Error creating currency"}}, socket}
+      {:error, changeset} ->
+        errors = Enum.map(changeset.errors, fn {field, detail} ->
+          "#{field}: #{elem(detail, 0)}"
+        end)
+        {:reply, {:error, %{error: "Error creating currency", reasons: errors}}, socket}
     end
   end
 
@@ -381,8 +298,6 @@ defmodule Hb.AccountingChannel do
 
 
     changeset = Currency.changeset(currency, currency_params)
-    IO.inspect changeset
-    IO.inspect currency_params
 
     case Repo.update(changeset) do
       {:ok, currency} ->
@@ -391,8 +306,11 @@ defmodule Hb.AccountingChannel do
 
         broadcast! socket, "currency:updated", %{currency: currency}
         {:noreply, socket}
-      {:error, _changeset} ->
-        {:reply, {:error, %{error: "Error updating currency"}}, socket}
+      {:error, changeset} ->
+        errors = Enum.map(changeset.errors, fn {field, detail} ->
+          "#{field}: #{elem(detail, 0)}"
+        end)
+        {:reply, {:error, %{error: "Error updating currency", reasons: errors}}, socket}
     end
   end
 
@@ -407,6 +325,7 @@ defmodule Hb.AccountingChannel do
 
     case transaction_count do
       0 ->
+        Repo.delete_all(from CurrencyBalance, where: [currency_id: ^currency.id])
         case Repo.delete(currency) do
           {:ok, currency_schema} ->
 
@@ -423,7 +342,6 @@ defmodule Hb.AccountingChannel do
 
 
   def handle_in("category:add", %{"category" => category_params}, socket) do
-    current_user = socket.assigns.current_user
     accounting = socket.assigns.accounting
 
     category = accounting
@@ -444,8 +362,11 @@ defmodule Hb.AccountingChannel do
 
         broadcast! socket, "category:created", %{category: category, categories_tree: categories_tree}
         {:noreply, socket}
-      {:error, _changeset} ->
-        {:reply, {:error, %{error: "Error creating category"}}, socket}
+      {:error, changeset} ->
+        errors = Enum.map(changeset.errors, fn {field, detail} ->
+          "#{field}: #{elem(detail, 0)}"
+        end)
+        {:reply, {:error, %{error: "Error creating category", reasons: errors}}, socket}
     end
   end
 
@@ -471,8 +392,11 @@ defmodule Hb.AccountingChannel do
 
         broadcast! socket, "category:updated", %{category: category, categories_tree: categories_tree}
         {:noreply, socket}
-      {:error, _changeset} ->
-        {:reply, {:error, %{error: "Error updating category"}}, socket}
+      {:error, changeset} ->
+        errors = Enum.map(changeset.errors, fn {field, detail} ->
+          "#{field}: #{elem(detail, 0)}"
+        end)
+        {:reply, {:error, %{error: "Error updating category", reasons: errors}}, socket}
     end
   end
 

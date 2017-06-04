@@ -126,13 +126,13 @@ class CategoryForm extends React.Component {
         <FormGroup>
           <ControlLabel>Название</ControlLabel>
           {' '}
-          <FormControl name="name" type="text" value={this.state.name} size="8" onChange={::this._handleInputChange} />
+          <FormControl name="name" required={true} type="text" value={this.state.name} size="8" onChange={::this._handleInputChange} />
         </FormGroup>
         {' '}
         <FormGroup>
           <ControlLabel>Тип категории</ControlLabel>
           {' '}
-          <FormControl componentClass="select" name="type" value={this.state.type} onChange={::this._handleInputChange}>
+          <FormControl componentClass="select" required={true} name="type" value={this.state.type} onChange={::this._handleInputChange}>
             <option value={Constants.EXPENSE}>Расходная</option>
             <option value={Constants.INCOME}>Приходная</option>
           </FormControl>
@@ -141,7 +141,7 @@ class CategoryForm extends React.Component {
         <FormGroup>
           <ControlLabel>Родительская категория</ControlLabel>
           {' '}
-          <FormControl componentClass="select" name="parent_id" value={this.state.parent_id} onChange={::this._handleInputChange}>
+          <FormControl componentClass="select" required={true} name="parent_id" value={this.state.parent_id} onChange={::this._handleInputChange}>
             <option value="0">Корневая категория</option>
             {
               categories.filter(c => c.type == this.state.type).map((c) => {
@@ -198,7 +198,7 @@ class Testt extends React.Component {
 }
 
 
-class AccountingExpenseCategoriesView extends React.Component {
+class AccountingCategoriesView extends React.Component {
   render_hz(node_key, category, sibling_count) {
     const { dispatch, currentAccounting } = this.props;
     const { channel, editingCategoryType } = currentAccounting;
@@ -305,4 +305,4 @@ const mapStateToProps = (state) => ({
   currentUser: state.session.currentUser
 });
 
-export default connect(mapStateToProps)(AccountingExpenseCategoriesView);
+export default connect(mapStateToProps)(AccountingCategoriesView);

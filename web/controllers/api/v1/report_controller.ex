@@ -1,4 +1,5 @@
 defmodule Hb.ReportController do
+  require IEx
   use Hb.Web, :controller
   use Filterable.Phoenix.Controller
 
@@ -7,7 +8,7 @@ defmodule Hb.ReportController do
   alias Hb.{Repo, Transaction, User, Category}
 
   filterable do
-    @options cast: :date
+    @options cast: :datetime
     filter from(query, value, _conn) do
       datetime = NaiveDateTime.new(value.year, value.month, value.day, 0, 0, 0)
         |> elem(1)
@@ -15,99 +16,112 @@ defmodule Hb.ReportController do
       query |> where([t], t.exec_at >= ^datetime)
     end
 
-    @options cast: :date
+    @options cast: :datetime
     filter to(query, value, _conn) do
       datetime = NaiveDateTime.new(value.year, value.month, value.day, 0, 0, 0)
         |> elem(1)
         |> DateTime.from_naive!("Etc/UTC")
       query |> where([t], t.exec_at < ^datetime)
     end
+
+    @options cast: :integer
+    filter account(query, value, _conn) do
+      query |> where([t], t.source_account_id == ^value or t.destination_account_id == ^value)
+    end
+
+    @options cast: :integer
+    filter author(query, value, _conn) do
+      query |> where([t], t.author_id == ^value)
+    end
+
+    @options cast: :integer
+    filter category(query, value, _conn) do
+      query |> where([t], t.category_id == ^value)
+    end
   end
 
   def index(conn, params) do
     current_user = Guardian.Plug.current_resource(conn)
 
-    transactions = current_user
+    accounting = current_user
       |> assoc(:all_accounting)
       |> Repo.get(params["accounting_id"])
+
+    transactions = accounting
       |> assoc(:transactions)
       |> apply_filters!(conn)
       |> elem(0)
       |> Transaction.preload_all
+      |> from(preload: :source_account)
       |> Repo.all
 
-    IO.inspect params
+    currencies = accounting
+      |> assoc(:currencies)
+      |> Repo.all
 
-    if false do
-      category_tree = %{}
-      grouped_transactions = transactions |> Enum.group_by(&(&1.category))
-      categories = grouped_transactions |> Map.keys
-      roots = categories |> Enum.filter(&(&1.parent_id == nil))
-
-      category_tree = roots
-        |> Enum.reduce(category_tree, fn(t, acc) ->
-          acc = Map.put(acc, t, %{})
-          # put_in(acc, [t], t)
-        end)
-
-      add_to = fn(parent, tree, keys, fun) ->
-        categories
-          |> Enum.filter(&(&1.parent_id == parent.id))
-          |> Enum.reduce(tree, fn(c, acc) ->
-            keys = keys ++ [c]
-            # IEx.pry
-            acc = Map.merge(acc, fun.(c, acc, keys, fun))
-            res = Service.MiscScripts.initialized_map(acc, keys)
-            # IEx.pry
-            # put_in(res, keys ++ [:node], c)
-          end)
+    categories_graph_data =
+      case params["grouped"] do
+        "true" ->
+          transactions
+            |> Enum.group_by(&(&1.category))
+            |> Enum.reduce(%{income: [], expense: []}, fn({k, v}, acc) ->
+              value = Enum.reduce(v, 0, fn t, acc ->
+                Transaction.get_transformed_amount(t,
+                                                   params["currency"],
+                                                   currencies).amount + acc
+              end) |> Money.new |> Money.to_string
+              case k && k.type do
+                :expense ->
+                  Map.update!(acc, :expense, &([[k.name, value] | &1]))
+                :income ->
+                  Map.update!(acc, :income, &([[k.name, value] | &1]))
+                _ ->
+                  acc
+               end
+            end)
+        _ ->
+        %{income: [], expense: []}
       end
 
-      # IEx.pry
-      category_tree = roots
-        |> Enum.reduce(category_tree, fn(r, acc) ->
-          res_map = add_to.(r, acc, [r], add_to)
-          acc = Map.merge(acc, res_map)
-          acc
-        end)
+    accounts_graph_data = transactions
+      |> Enum.filter(&(&1.type == :income))
+      |> Enum.group_by(&(&1.source_account))
+      |> Enum.reduce([], fn({k, v}, acc) ->
+        value = Enum.reduce(v, 0, fn t, acc ->
+          Transaction.get_transformed_amount(t,
+                                             params["currency"],
+                                             currencies).amount + acc
+        end) |> Money.new |> Money.to_string
+        [[k.name, value] | acc]
+      end)
 
-      go_down = fn(tree, keys, fun) ->
-        subtree = get_in(tree, keys)
-        subcategories = subtree |> Map.keys
-        case subcategories do
-          [] ->
-            category = categories |> Enum.find(&(&1 == List.last(keys)))
-            sum = grouped_transactions[category]
-              |> Enum.reduce(Money.new(0), fn(t, acc) ->
-                case t.category.type do
-                  :expense ->
-                    Money.subtract(acc, t.amount)
-                  :income ->
-                    Money.add(acc, t.amount)
-                  _ ->
-                    acc
-                 end
-              end)
-            {put_in(tree, keys ++ [:sum], sum), sum}
-          _ ->
-            {tree, sum} = subcategories
-              |> Enum.reduce({tree, Money.new(0)}, fn(k, acc) ->
-                {tree, sum} = fun.(elem(acc, 0), keys ++ [k], fun)
-                {Map.merge(elem(acc, 0), tree), Money.add(elem(acc, 1), sum)}
-              end)
-            {put_in(tree, keys ++ [:sum], sum), sum}
-        end
-      end
+    transactions_query = accounting
+      |> assoc(:transactions)
 
-      res_tree = category_tree
-        |> Map.keys
-        |> Enum.reduce(category_tree, fn(key, acc) ->
-          {tree, sum} = go_down.(acc, [key], go_down)
-          Map.merge(acc, tree)
-        end)
-    end
+    query = from t in transactions_query,
+      where: t.type in [^:expense, ^:income] and
+             t.exec_at > datetime_add(^Ecto.DateTime.utc, -5, "month"),
+      preload: [:currency, :author]
 
-    render(conn, "report.json", transactions: transactions, category_tree: res_tree)
+    dynamic_graph_data = query
+      |> Repo.all
+      |> Enum.group_by(&("#{&1.exec_at.year}/#{&1.exec_at.month |> Integer.to_string |> String.rjust(2, ?0)}"))
+      |> Enum.reduce(%{}, fn({k, v}, acc) ->
+        value = Enum.reduce(v, %{expense: 0, income: 0}, fn transaction, acc ->
+          amount = Transaction.get_transformed_amount(transaction,
+                                                      params["currency"],
+                                                      currencies)
+          Map.put(acc, transaction.type, acc[transaction.type] + amount.amount)
+        end) |> Enum.reduce(%{}, fn({k, v}, acc) -> Map.put(acc, k, Money.new(v) |> Money.to_string) end)
+        Map.put(acc, k, value)
+      end)
+
+    text conn, Poison.encode!(%{transactions: transactions,
+                                tree: %{},
+                                dynamic_graph: dynamic_graph_data,
+                                categories_graph_data: categories_graph_data,
+                                accounts_graph_data: accounts_graph_data}, [transform_currency: params["currency"],
+                                                                            currencies: currencies])
   end
 
 end

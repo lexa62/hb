@@ -4,14 +4,15 @@ import createLogger                     from 'redux-logger';
 import thunkMiddleware                  from 'redux-thunk';
 import reducers                         from '../reducers';
 
-const loggerMiddleware = createLogger({
-  level: 'info',
-  collapsed: true,
-});
-
 export default function configureStore(browserHistory) {
   const reduxRouterMiddleware = routerMiddleware(browserHistory);
-  const createStoreWithMiddleware = applyMiddleware(reduxRouterMiddleware, thunkMiddleware, loggerMiddleware)(createStore);
-
+  let createStoreWithMiddleware;
+  if(process.env.NODE_ENV !== 'production') {
+    const loggerMiddleware = createLogger({
+      level: 'info',
+      collapsed: true,
+    });
+    createStoreWithMiddleware = applyMiddleware(reduxRouterMiddleware, thunkMiddleware, loggerMiddleware)(createStore);
+  } else createStoreWithMiddleware = applyMiddleware(reduxRouterMiddleware, thunkMiddleware)(createStore);
   return createStoreWithMiddleware(reducers);
 }

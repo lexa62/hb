@@ -21,6 +21,7 @@ defmodule Hb.FinancialGoal do
     struct
     |> cast(params, [:goal_amount, :name, :current_amount, :accounting_id, :currency_id])
     |> validate_required([:goal_amount, :name, :accounting_id, :currency_id])
+    |> validate_length(:name, max: 255)
   end
 
   def preload_all(query) do

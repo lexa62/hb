@@ -12,8 +12,7 @@ import AccountingParticipantsView       from '../views/accounting/participants';
 import AccountingExportImportView       from '../views/accounting/export_import';
 import AccountingAccountsView       from '../views/accounting/accounts';
 import AccountingCurrenciesView     from '../views/accounting/currencies';
-import AccountingExpenseCategoriesView     from '../views/accounting/expense_categories';
-import AccountingIncomeCategoriesView     from '../views/accounting/income_categories';
+import AccountingCategoriesView     from '../views/accounting/categories';
 
 import AccountingFinancialGoalsView from '../views/accounting/financial_goals';
 import AccountingReportsView from '../views/accounting/reports';
@@ -48,8 +47,7 @@ export default function configRoutes(store) {
           <Route path="financial_goals" component={AccountingFinancialGoalsView} />
           <Route path="reports" component={AccountingReportsView} />
 
-          <Route path="expense_categories" component={AccountingExpenseCategoriesView} />
-          <Route path="income_categories" component={AccountingIncomeCategoriesView} />
+          <Route path="expense_categories" component={AccountingCategoriesView} />
           <Route path="participants" component={AccountingParticipantsView} />
           <Route path="export_import" component={AccountingExportImportView} />
           <Route path="accounts" component={AccountingAccountsView} />

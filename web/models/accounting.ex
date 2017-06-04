@@ -77,6 +77,7 @@ defmodule Hb.Accounting do
       model
       |> Map.take([:id, :transactions, :currencies, :accounts, :categories, :inserted_at, :accounting_users])
       |> Map.put(:categories_tree, Hb.Accounting.get_categories_tree(model.categories))
+      |> Map.put(:transactions_count, Hb.Repo.aggregate(from(Hb.Transaction, where: [accounting_id: ^model.id]), :count, :id))
       |> Poison.Encoder.encode(options)
     end
   end

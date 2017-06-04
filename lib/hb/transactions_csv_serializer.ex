@@ -15,39 +15,68 @@ defmodule TransactionsCsvSerializer do
   @default_fields ~w(amount currency category account_from account_to exec_at description)a
 
   def parse_and_save(file_path, accounting_id, author_id) do
-    try do
+      try do
         res = file_path
-        |> File.stream!
-        |> CSV.parse_stream
-        |> Stream.map(fn
-          [amount, currency, category, account_from, account_to, exec_at, description] ->
-            type = prepare_type(amount, account_to)
-            category_id = prepare_category(category, type, accounting_id)
-            amount = prepare_amount(amount)
-            exec_at = prepare_exec_at(exec_at)
-            currency_record_id = prepare_currency(currency, accounting_id)
-            account_from_record_id = prepare_account(account_from, accounting_id)
-            account_to_record_id = prepare_account(account_to, accounting_id)
-            Transaction.changeset(%Transaction{}, %{amount: amount,
-                                                    currency_id: currency_record_id,
-                                                    source_account_id: account_from_record_id,
-                                                    destination_account_id: account_to_record_id,
-                                                    accounting_id: accounting_id,
-                                                    category_id: category_id,
-                                                    author_id: author_id,
-                                                    exec_at: exec_at,
-                                                    description: description,
-                                                    type: type})
-            |> Repo.insert!
-          _ ->
-           raise WrongFieldsError
-        end)
-        |> Enum.to_list
-        |> Enum.count
-    rescue
-      e in _ ->
-        {:error, e}
-    end
+          |> File.stream!
+          |> CSV.parse_stream
+          |> Stream.map(fn
+            [amount, currency, category, account_from, account_to, exec_at, description] ->
+              try do
+                type = prepare_type(amount, account_to)
+                category_id = prepare_category(category, type, accounting_id)
+                amount = prepare_amount(amount)
+                exec_at = prepare_exec_at(exec_at)
+                currency_record_id = prepare_currency(currency, accounting_id)
+                account_from_record_id = prepare_account(account_from, accounting_id)
+                account_to_record_id = prepare_account(account_to, accounting_id)
+                transaction =
+                  Transaction.changeset(%Transaction{}, %{amount: amount,
+                                                          currency_id: currency_record_id,
+                                                          source_account_id: account_from_record_id,
+                                                          destination_account_id: account_to_record_id,
+                                                          accounting_id: accounting_id,
+                                                          category_id: category_id,
+                                                          author_id: author_id,
+                                                          exec_at: exec_at,
+                                                          description: description,
+                                                          type: type})
+              rescue
+                e in _ ->
+                  Transaction.changeset(%Transaction{}) |> Ecto.Changeset.add_error(:base, e.message)
+              end
+            _ ->
+             raise WrongFieldsError
+          end)
+          |> Enum.to_list
+          |> Enum.with_index
+          |> Enum.split_with(fn {changeset, i} -> changeset.valid? end)
+        wrong_changesets = res |> elem(1)
+        case wrong_changesets do
+          [] ->
+            count = res |> elem(0) |> Enum.map(fn {c, i} ->
+              transaction_schema = Repo.insert!(c)
+              Transaction.update_currency_balance(transaction_schema)
+            end) |> Enum.count
+            %{import_status: :ok, inserted_count: count}
+          changesets ->
+            wrong_transactions = Enum.map(changesets, fn {changeset, i} ->
+              base_error = Enum.find(changeset.errors, fn {f, d} -> f == :base end)
+              message =
+                case base_error do
+                  nil ->
+                    changeset.errors |> Enum.map(fn{field, detail} -> "#{field}: #{elem(detail, 0)}" end)
+                  error ->
+                    "#{elem(error, 1) |> elem(0)}"
+                end
+              [message, i]
+            end)
+            %{import_status: :error, wrong_transactions: wrong_transactions}
+        end
+      rescue
+        e in WrongFieldsError ->
+          %{import_status: :error, error: e.message}
+      end
+
   end
 
   def to_csv_string(transactions) do
@@ -64,7 +93,13 @@ defmodule TransactionsCsvSerializer do
   end
 
   defp prepare_type(amount, account_to) do
-    amount = String.to_integer(amount)
+    amount =
+      case Float.parse(amount) do
+        :error ->
+          raise WrongRowError
+        res ->
+          res |> elem(0)
+      end
     cond do
       amount > 0 and account_to == "" ->
         :income
@@ -91,16 +126,21 @@ defmodule TransactionsCsvSerializer do
 
   defp prepare_category(name, type, accounting_id) do
     record =
-      case name do
-        "" ->
-          Repo.get_by(Category, name: "Без категории", accounting_id: accounting_id, type: :none) ||
-            Repo.insert!(%Category{name: "Без категории", accounting_id: accounting_id, type: :none})
+      case type do
+        :transfer ->
+          nil
         _ ->
-          Category
-          |> Repo.get_by(name: name, accounting_id: accounting_id, type: type) ||
-            Repo.insert!(%Category{name: name, accounting_id: accounting_id, type: type})
+          case name do
+            "" ->
+              Repo.get_by(Category, name: "Без категории", accounting_id: accounting_id, type: :none) ||
+                Repo.insert!(%Category{name: "Без категории", accounting_id: accounting_id, type: :none})
+            _ ->
+              Category
+              |> Repo.get_by(name: name, accounting_id: accounting_id, type: type) ||
+                Repo.insert!(%Category{name: name, accounting_id: accounting_id, type: type})
+          end
       end
-    record.id
+    record && record.id
   end
 
   defp prepare_currency(code, accounting_id) do
@@ -118,9 +158,19 @@ defmodule TransactionsCsvSerializer do
   end
 
   defp prepare_account(name, accounting_id) do
-    record = Account
-    |> Repo.get_by(name: name, accounting_id: accounting_id) ||
-      Repo.insert!(%Account{name: name, accounting_id: accounting_id})
+    record =
+      case name do
+        "" ->
+          Account
+          |> Repo.get_by(is_default: true, accounting_id: accounting_id) ||
+            Repo.insert!(%Account{name: name, accounting_id: accounting_id})
+        _ ->
+          # IEx.pry
+          Account
+          |> Repo.get_by(name: name, accounting_id: accounting_id) ||
+            Repo.insert!(%Account{name: name, accounting_id: accounting_id})
+      end
+    # IEx.pry
     record.id
   end
 

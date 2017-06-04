@@ -20,6 +20,7 @@ defmodule Hb.Currency do
     struct
     |> cast(params, [:name, :iso_code, :manual_rate, :is_default, :accounting_id])
     |> validate_required([:name, :iso_code, :accounting_id])
+    |> validate_inclusion(:iso_code, Currencies.all |> Enum.map(&(&1.code)))
     |> unique_constraint(:is_default, name: "currencies_is_default_accounting_id_index")
     |> unique_constraint(:iso_code, name: "currencies_iso_code_accounting_id_index")
   end

@@ -4,10 +4,17 @@ import { Socket }                         from 'phoenix';
 import { httpGet, httpPost, httpDelete }  from '../utils';
 
 export function setCurrentUser(dispatch, user) {
-  const socket = new Socket('/socket', {
-    params: { token: localStorage.getItem('phoenixAuthToken') },
-    logger: (kind, msg, data) => { console.log('WEBSOCKET_LOGGER:', `${kind}: ${msg}`, data); },
-  });
+  let socket;
+  if(process.env.NODE_ENV !== 'production') {
+    socket = new Socket('/socket', {
+      params: { token: localStorage.getItem('phoenixAuthToken') },
+      logger: (kind, msg, data) => { console.log('WEBSOCKET_LOGGER:', `${kind}: ${msg}`, data); },
+    });
+  } else {
+    socket = new Socket('/socket', {
+      params: { token: localStorage.getItem('phoenixAuthToken') }
+    });
+  }
 
   socket.connect();
 

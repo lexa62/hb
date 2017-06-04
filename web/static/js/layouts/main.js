@@ -26,22 +26,13 @@ class MainLayout extends React.Component {
           <LinkContainer to={`/accounting/${currentAccounting.id}/financial_goals`}>
             <NavItem eventKey={2}>Накопления</NavItem>
           </LinkContainer>
-          {/*<LinkContainer to={`/accounting/${currentAccounting.id}/budget_planning`}>
-            <NavItem eventKey={3}>Планирование</NavItem>
-          </LinkContainer>*/}
           <LinkContainer to={`/accounting/${currentAccounting.id}/reports`}>
             <NavItem eventKey={4}>Отчёты</NavItem>
           </LinkContainer>
-          {/*<LinkContainer to={`/accounting/${currentAccounting.id}/settings`}>
-            <NavItem eventKey={5}>Настройки</NavItem>
-          </LinkContainer>*/}
           <NavDropdown eventKey={6} title="Настройки" id="basic-nav-dropdown">
             <LinkContainer to={`/accounting/${currentAccounting.id}/expense_categories`}>
               <MenuItem eventKey={6.1}>Категории</MenuItem>
             </LinkContainer>
-            {/*<LinkContainer to={`/accounting/${currentAccounting.id}/income_categories`}>
-              <MenuItem eventKey={6.2}>Источники доходов</MenuItem>
-            </LinkContainer>*/}
             <LinkContainer to={`/accounting/${currentAccounting.id}/accounts`}>
               <MenuItem eventKey={6.3}>Счета</MenuItem>
             </LinkContainer>

@@ -19,7 +19,7 @@ class OwnedAccounting extends React.Component {
             {this.props.id}
           </Link>
         </td>
-        <td>{this.props.transactions.length}</td>
+        <td>{this.props.transactions_count}</td>
         <td>{inserted_at.toLocaleString()}</td>
       </tr>
     );
@@ -38,7 +38,7 @@ class ParticipatedAccounting extends React.Component {
           </Link>
         </td>
         <td>{this.props.accounting_users.map(e => e.user.email).join(', ')}</td>
-        <td>{this.props.transactions.length}</td>
+        <td>{this.props.transactions_count}</td>
         <td>{inserted_at.toLocaleString()}</td>
       </tr>
     );
@@ -99,39 +99,35 @@ class HomeIndexView extends React.Component {
     const { participatedAccounting } = this.props;
     let content = false;
 
-    if (participatedAccounting) {
+    if (participatedAccounting.length) {
       content = (
-
-        <Col md={6}>
-          <Table striped bordered condensed hover>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Участники</th>
-                <th>Количество операций</th>
-                <th>Создан</th>
-              </tr>
-            </thead>
-            <tbody>
-            {
-              participatedAccounting.map((accounting) => {
-                return <ParticipatedAccounting key={accounting.id} dispatch={this.props.dispatch} {...accounting} />;
-              })
-            }
-            </tbody>
-          </Table>
-        </Col>
+        <Row>
+          <header className="view-header">
+            <h3>Приглашения:</h3>
+          </header>
+          <Col md={6}>
+            <Table striped bordered condensed hover>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Участники</th>
+                  <th>Количество операций</th>
+                  <th>Создан</th>
+                </tr>
+              </thead>
+              <tbody>
+              {
+                participatedAccounting.map((accounting) => {
+                  return <ParticipatedAccounting key={accounting.id} dispatch={this.props.dispatch} {...accounting} />;
+                })
+              }
+              </tbody>
+            </Table>
+          </Col>
+        </Row>
       );
     }
-
-    return (
-      <Row>
-        <header className="view-header">
-          <h3>Приглашения:</h3>
-        </header>
-        {content}
-      </Row>
-    );
+    return content;
   }
 
 

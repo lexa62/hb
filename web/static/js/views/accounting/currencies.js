@@ -106,6 +106,8 @@ class CurrencyForm extends React.Component {
     switch (name) {
       case 'manual_rate':
         value = value.replace(/[^0-9.]+/g, '');
+      case 'iso_code':
+        value = value.substring(0, 3).replace(/[^A-Z]+/g, '');
       default:
       ;
     }
@@ -125,13 +127,13 @@ class CurrencyForm extends React.Component {
         <FormGroup>
           <ControlLabel>Название</ControlLabel>
           {' '}
-          <FormControl name="name" type="text" value={this.state.name} size="8" onChange={::this._handleInputChange} />
+          <FormControl name="name" type="text" required={true} value={this.state.name} size="8" onChange={::this._handleInputChange} />
         </FormGroup>
         {' '}
         <FormGroup>
           <ControlLabel>Код валюты</ControlLabel>
           {' '}
-          <FormControl name="iso_code" type="text" placeholder="BYN" value={this.state.iso_code} size="8" onChange={::this._handleInputChange} />
+          <FormControl name="iso_code" type="text" required={true} placeholder="BYN" value={this.state.iso_code} size="8" onChange={::this._handleInputChange} />
         </FormGroup>
         {' '}
         <FormGroup>

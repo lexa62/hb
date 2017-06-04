@@ -51,7 +51,7 @@ export default class ImportTransactionsForm extends React.Component {
           error && <HelpBlock>{error}</HelpBlock>
         }
         <FormGroup>
-          <input ref={(input) => this.file = input} type="file" name="file" onChange={::this._handleInputChange} placeholder="Файл"/>
+          <input required={true} ref={(input) => this.file = input} type="file" name="file" onChange={::this._handleInputChange} placeholder="Файл"/>
         </FormGroup>
         <Button bsStyle="default" type="submit">Импорт</Button>
       </form>

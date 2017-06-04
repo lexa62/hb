@@ -53,7 +53,7 @@ class AccountForm extends React.Component {
       name: props.name,
       is_default: props.is_default,
       currency_balances: props.currencies.map((c) => {
-        let initial_amount = "";
+        let initial_amount = "0";
         let currency_balance = {};
         if(props.currency_balances) {
           currency_balance = props.currency_balances.find(b => b.currency.iso_code == c.iso_code);
@@ -135,7 +135,7 @@ class AccountForm extends React.Component {
         <FormGroup>
           <ControlLabel>Название</ControlLabel>
           {' '}
-          <FormControl name="name" type="text" value={this.state.name} size="8" onChange={::this._handleInputChange} />
+          <FormControl name="name" type="text" required={true} value={this.state.name} size="8" onChange={::this._handleInputChange} />
         </FormGroup>
         {' '}
         <FormGroup>
@@ -152,7 +152,7 @@ class AccountForm extends React.Component {
               // const code = Object.keys(c)[0];
               return (
                 <InputGroup key={c.iso_code}>
-                  <FormControl type="text" placeholder="0" size="8" name={`initial_amount_${c.iso_code}`} value={c.initial_amount} onChange={::this._handleInputChange} />
+                  <FormControl type="text" placeholder="0" required={true} size="8" name={`initial_amount_${c.iso_code}`} value={c.initial_amount} onChange={::this._handleInputChange} />
                   <InputGroup.Addon>{c.iso_code}</InputGroup.Addon>
                 </InputGroup>
               )

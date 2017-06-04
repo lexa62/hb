@@ -7,7 +7,8 @@ const initialState = {
   fetching: true,
   fetching_financial_goals: true,
   report_transactions: [],
-  editingCategoryType: Constants.EXPENSE
+  editingCategoryType: Constants.EXPENSE,
+  reports_fetching: false
 };
 
 export default function reducer(state = initialState, action = {}) {
@@ -82,7 +83,10 @@ export default function reducer(state = initialState, action = {}) {
       if (old_transactions) {
         const currency_index = old_transactions.findIndex((goal) => { return goal.id == action.id; });
         const new_transactions = update(old_transactions, {$splice: [[currency_index, 1]]});
-        return { ...state, transactions: new_transactions, accounts: newArray };
+        if(state.editingTransactionId && state.editingTransactionId == action.id)
+          return { ...state, transactions: new_transactions, accounts: newArray, editingTransactionId: null };
+        else
+          return { ...state, transactions: new_transactions, accounts: newArray };
       } else return state;
 
 
@@ -147,7 +151,10 @@ export default function reducer(state = initialState, action = {}) {
       if (old_accounts) {
         const account_index = old_accounts.findIndex((goal) => { return goal.id == action.id; });
         const new_accounts = update(old_accounts, {$splice: [[account_index, 1]]});
-        return { ...state, accounts: new_accounts };
+        if(state.editingAccountId && state.editingAccountId == action.id)
+          return { ...state, accounts: new_accounts, editingAccountId: null };
+        else
+          return { ...state, accounts: new_accounts };
       } else return state;
 
 
@@ -175,7 +182,10 @@ export default function reducer(state = initialState, action = {}) {
       if (old_currencies) {
         const currency_index = old_currencies.findIndex((goal) => { return goal.id == action.id; });
         const new_currencies = update(old_currencies, {$splice: [[currency_index, 1]]});
-        return { ...state, currencies: new_currencies };
+        if(state.editingCurrencyId && state.editingCurrencyId == action.id)
+          return { ...state, currencies: new_currencies, editingCurrencyId: null };
+        else
+          return { ...state, currencies: new_currencies };
       } else return state;
 
 
@@ -221,14 +231,28 @@ export default function reducer(state = initialState, action = {}) {
       } else return { ...state, error: null };
 
     case Constants.CURRENT_ACCOUNTING_IMPORT_COMPLETED:
-      return { ...state, imported_count: action.imported_count };
+      if(action.data.import_status == "ok")
+        return { ...state, imported_count: action.data.inserted_count, error: null };
+      else {
+        let error_msg;
+        error_msg = action.data.error ? action.data.error : action.data.wrong_transactions;
+        return { ...state, error: error_msg };
+      }
 
     case Constants.CURRENT_ACCOUNTING_ADD_MEMBER_ERROR:
       return { ...state, error: action.error };
 
 
+    case Constants.CURRENT_ACCOUNTING_REPORT_FETCHING:
+      return { ...state, reports_fetching: true };
+
     case Constants.CURRENT_ACCOUNTING_REPORT_RECEIVED:
-      return { ...state, report_transactions: action.report_transactions, report_tree: action.tree };
+      return { ...state, report_transactions: action.report_transactions,
+                         report_tree: action.tree,
+                         reports_fetching: false,
+                         dynamic_graph: action.dynamic_graph,
+                         categories_graph_data: action.categories_graph_data,
+                         accounts_graph_data: action.accounts_graph_data };
 
 
     case Constants.CURRENT_ACCOUNTING_RESET:

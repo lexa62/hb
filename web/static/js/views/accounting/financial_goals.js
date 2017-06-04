@@ -73,25 +73,25 @@ class FinancialGoalForm extends React.Component {
         <FormGroup>
           <ControlLabel>Название</ControlLabel>
           {' '}
-          <FormControl name="name" type="text" value={this.state.name} size="8" onChange={::this._handleInputChange} />
+          <FormControl name="name" type="text" required={true} value={this.state.name} size="8" onChange={::this._handleInputChange} />
         </FormGroup>
         {' '}
         <FormGroup>
           <ControlLabel>Накоплено</ControlLabel>
           {' '}
-          <FormControl type="text" placeholder="100" size="8" name="current_amount" value={this.state.current_amount} onChange={::this._handleInputChange} />
+          <FormControl type="text" placeholder="100" required={true} size="8" name="current_amount" value={this.state.current_amount} onChange={::this._handleInputChange} />
         </FormGroup>
         {' '}
         <FormGroup>
           <ControlLabel>Сумма</ControlLabel>
           {' '}
-          <FormControl type="text" placeholder="1000" size="8" name="goal_amount" value={this.state.goal_amount} onChange={::this._handleInputChange} />
+          <FormControl type="text" placeholder="1000" required={true} size="8" name="goal_amount" value={this.state.goal_amount} onChange={::this._handleInputChange} />
         </FormGroup>
         {' '}
         <FormGroup>
           <ControlLabel>Валюта</ControlLabel>
           {' '}
-          <FormControl componentClass="select" name="currency_id" value={this.state.currency_id} onChange={::this._handleInputChange}>
+          <FormControl componentClass="select" required={true} name="currency_id" value={this.state.currency_id} onChange={::this._handleInputChange}>
             {
               currencies.map((c) => {
                 return (

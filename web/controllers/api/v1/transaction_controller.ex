@@ -23,13 +23,8 @@ defmodule Hb.TransactionController do
   def import(conn, %{"accounting_id" => accounting_id, "file" => file}) do
     current_user = Guardian.Plug.current_resource(conn)
 
-    if file do
-      IO.inspect extension = Path.extname(file.filename)
-      IO.inspect File.stat(file.path)
-    end
-
     result = TransactionsCsvSerializer.parse_and_save(file.path, String.to_integer(accounting_id), current_user.id)
-    Repo.all(CurrencyBalance) |> Enum.each(fn c -> c |> CurrencyBalance.calculate_current_amount |> Repo.update! end)
+    # Repo.all(CurrencyBalance) |> Enum.each(fn c -> c |> CurrencyBalance.calculate_current_amount |> Repo.update! end)
 
     render(conn, "import.json", result: result)
   end

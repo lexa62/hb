@@ -3,7 +3,7 @@ defmodule Hb.Mixfile do
 
   def project do
     [app: :hb,
-     version: "0.0.1",
+     version: "1.0.0",
      elixir: "~> 1.2",
      description: "Hb release deb",
      elixirc_paths: elixirc_paths(Mix.env),
@@ -11,8 +11,8 @@ defmodule Hb.Mixfile do
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      aliases: aliases(),
-     deps: deps,
-     package: package]
+     deps: deps(),
+     package: package()]
   end
 
   # Configuration for the OTP application.
@@ -47,7 +47,7 @@ defmodule Hb.Mixfile do
      {:httpoison, "~> 0.11.1"},
      {:cachex, "~> 2.1"},
      {:money, "~> 1.2.1"},
-     # {:currencies, "~> 0.4.1"},
+     {:currencies, "~> 0.5.1"},
      {:arbor, "~> 1.0.3"},
      {:nimble_csv, "~> 0.1.0"},
      {:filterable, "~> 0.5.2"},

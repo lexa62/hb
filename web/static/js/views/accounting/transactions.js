@@ -70,24 +70,27 @@ class TransactionList extends React.Component {
     return (
       <div>
         <h4>Последние операции</h4>
-              <Table striped bordered condensed hover>
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Сумма</th>
-                    <th>Тип</th>
-                    <th>Валюта</th>
-                    <th>Описание</th>
-                    <th>Исполнитель</th>
-                    <th>Обновлена</th>
-                    <th>Действия</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {transactions}
-                </tbody>
-              </Table>
-
+        {
+          transactions.length > 0 && (
+            <Table striped bordered condensed hover>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Сумма</th>
+                  <th>Тип</th>
+                  <th>Валюта</th>
+                  <th>Описание</th>
+                  <th>Исполнитель</th>
+                  <th>Обновлена</th>
+                  <th>Действия</th>
+                </tr>
+              </thead>
+              <tbody>
+                {transactions}
+              </tbody>
+            </Table>
+          )
+        }
       </div>
     );
   }
@@ -163,21 +166,25 @@ class TransactionForm extends React.Component {
     this.setState({
       [name]: value
     });
+
   }
 
   _handleExpenseType(e) {
     e.preventDefault();
-    this.setState({type: Constants.EXPENSE});
+    const defaultCategory = this.props.categories.filter((c) => c.type == Constants.EXPENSE)[0];
+    this.setState({type: Constants.EXPENSE, category_id: defaultCategory && defaultCategory.id});
   }
 
   _handleIncomeType(e) {
     e.preventDefault();
-    this.setState({type: Constants.INCOME});
+    const defaultCategory = this.props.categories.filter((c) => c.type == Constants.INCOME)[0];
+    this.setState({type: Constants.INCOME, category_id: defaultCategory && defaultCategory.id});
   }
 
   _handleTransferType(e) {
     e.preventDefault();
-    this.setState({type: Constants.TRANSFER});
+    const defaultCategory = this.props.categories.filter((c) => c.type == Constants.TRANSFER)[0];
+    this.setState({type: Constants.TRANSFER, category_id: defaultCategory && defaultCategory.id});
   }
 
   _handleDateChange(value, formattedValue) {

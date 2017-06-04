@@ -6,6 +6,7 @@ defmodule Hb.ReportView do
   end
 
   def render("report.json", %{transactions: transactions, category_tree: res_tree}) do
-    %{transactions: transactions, tree: Service.MiscScripts.convert_to_string_map(res_tree)}
+    map = %{transactions: transactions, tree: %{}}
+    Poison.encode(map, [transform_currency: "EUR"])
   end
 end

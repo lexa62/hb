@@ -4,6 +4,11 @@ import { httpGet, httpPost, httpPostFile }  from '../utils';
 import fileDownload  from 'react-file-download';
 
 const Actions = {
+  showError: (payload) => {
+    let msg = payload.error;
+    if(payload.reasons) msg = `${msg} (${payload.reasons.join(', ')})`;
+    alert(msg);
+  },
   connectToChannel: (socket, accountingId) => {
     return dispatch => {
       // const channelName = `accounting:${accountingId === 'my' ? ownedId : accountingId}`
@@ -165,7 +170,8 @@ const Actions = {
 
   createTransaction: (channel, data) => {
     return dispatch => {
-      channel.push('transactions:create', { transaction: data });
+      channel.push('transactions:create', { transaction: data })
+        .receive("error", Actions.showError);
     };
   },
 
@@ -180,13 +186,15 @@ const Actions = {
 
   updateTransaction: (channel, transaction) => {
     return dispatch => {
-      channel.push('transaction:update', { transaction: transaction });
+      channel.push('transaction:update', { transaction: transaction })
+        .receive("error", Actions.showError);
     };
   },
 
   removeTransaction: (channel, id) => {
     return dispatch => {
-      channel.push('transaction:remove', { transaction_id: id });
+      channel.push('transaction:remove', { transaction_id: id })
+        .receive("error", Actions.showError);
     };
   },
 
@@ -205,7 +213,7 @@ const Actions = {
       .then((data) => {
         dispatch({
           type: Constants.CURRENT_ACCOUNTING_IMPORT_COMPLETED,
-          imported_count: data.result,
+          data: data.result,
         });
       });
     }
@@ -257,20 +265,23 @@ const Actions = {
 
   addFinancialGoal: (channel, financial_goal) => {
     return dispatch => {
-      channel.push('financial_goal:add', { financial_goal: financial_goal });
+      channel.push('financial_goal:add', { financial_goal: financial_goal })
+        .receive("error", Actions.showError);
     };
   },
 
 
   updateFinancialGoal: (channel, financial_goal) => {
     return dispatch => {
-      channel.push('financial_goal:update', { financial_goal: financial_goal });
+      channel.push('financial_goal:update', { financial_goal: financial_goal })
+        .receive("error", Actions.showError);
     };
   },
 
   removeFinancialGoal: (channel, id) => {
     return dispatch => {
-      channel.push('financial_goal:remove', { financial_goal_id: id });
+      channel.push('financial_goal:remove', { financial_goal_id: id })
+        .receive("error", Actions.showError);
     };
   },
 
@@ -278,12 +289,15 @@ const Actions = {
     return dispatch => {
       dispatch({ type: Constants.CURRENT_ACCOUNTING_REPORT_FETCHING });
 
-      httpGet(`/api/v1/accounting/${accounting_id}/report?from=${data.from}&to=${data.to}`)
+      httpGet(`/api/v1/accounting/${accounting_id}/report?from=${data.from}&to=${data.to}&currency=${data.currency_code}&grouped=${data.grouped}&author=${data.author_id}${data.source_account_id == 'all' ? '' : '&account=' + data.source_account_id}${data.category_id == 'all' ? '' : '&category=' + data.category_id}`)
       .then((data) => {
         dispatch({
           type: Constants.CURRENT_ACCOUNTING_REPORT_RECEIVED,
           report_transactions: data.transactions,
           tree: data.tree,
+          dynamic_graph: data.dynamic_graph,
+          categories_graph_data: data.categories_graph_data,
+          accounts_graph_data: data.accounts_graph_data
         });
       });
     };
@@ -302,20 +316,23 @@ const Actions = {
 
   addAccount: (channel, account) => {
     return dispatch => {
-      channel.push('account:add', { account: account });
+      channel.push('account:add', { account: account })
+        .receive("error", Actions.showError);
     };
   },
 
 
   updateAccount: (channel, account) => {
     return dispatch => {
-      channel.push('account:update', { account: account });
+      channel.push('account:update', { account: account })
+        .receive("error", Actions.showError);
     };
   },
 
   removeAccount: (channel, id) => {
     return dispatch => {
-      channel.push('account:remove', { account_id: id });
+      channel.push('account:remove', { account_id: id })
+        .receive("error", Actions.showError);
     };
   },
 
@@ -332,20 +349,23 @@ const Actions = {
 
   addCurrency: (channel, currency) => {
     return dispatch => {
-      channel.push('currency:add', { currency: currency });
+      channel.push('currency:add', { currency: currency })
+        .receive("error", Actions.showError);
     };
   },
 
 
   updateCurrency: (channel, currency) => {
     return dispatch => {
-      channel.push('currency:update', { currency: currency });
+      channel.push('currency:update', { currency: currency })
+        .receive("error", Actions.showError);
     };
   },
 
   removeCurrency: (channel, id) => {
     return dispatch => {
-      channel.push('currency:remove', { currency_id: id });
+      channel.push('currency:remove', { currency_id: id })
+        .receive("error", Actions.showError);
     };
   },
 
@@ -371,20 +391,23 @@ const Actions = {
 
   addCategory: (channel, category) => {
     return dispatch => {
-      channel.push('category:add', { category: category });
+      channel.push('category:add', { category: category })
+        .receive("error", Actions.showError);
     };
   },
 
 
   updateCategory: (channel, category) => {
     return dispatch => {
-      channel.push('category:update', { category: category });
+      channel.push('category:update', { category: category })
+        .receive("error", Actions.showError);
     };
   },
 
   removeCategory: (channel, id) => {
     return dispatch => {
-      channel.push('category:remove', { category_id: id });
+      channel.push('category:remove', { category_id: id })
+        .receive("error", Actions.showError);
     };
   },
 
